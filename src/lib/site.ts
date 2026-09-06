@@ -14,4 +14,4 @@
  */
 export const LAUNCHED = false;
 
-export const SITE_NAME = 'Kendall Willis';
+export const SITE_NAME = '100BadReasons';

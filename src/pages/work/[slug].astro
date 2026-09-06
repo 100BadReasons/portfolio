@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getWork } from '../../lib/collection';
+import { SITE_NAME } from '../../lib/site';
 
 export async function getStaticPaths() {
   const projects = await getWork();
@@ -17,7 +18,7 @@ const { data } = project;
 const preview = data.featured_preview;
 ---
 <BaseLayout
-  title={`${data.title} — Kendall Willis`}
+  title={`${data.title} — ${SITE_NAME}`}
   description={data.tagline}
   path={`/work/${project.id}`}
 >

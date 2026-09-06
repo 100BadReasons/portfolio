@@ -1,6 +1,6 @@
 ---
 import { absoluteUrl, withBase } from '../lib/url';
-import { LAUNCHED } from '../lib/site';
+import { LAUNCHED, SITE_NAME } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
@@ -26,6 +26,7 @@ const canonical = absoluteUrl(path, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
     {ogImage && <meta property="og:image" content={absoluteUrl(ogImage, Astro.site)} />}
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
