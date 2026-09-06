@@ -1,0 +1,29 @@
+---
+/**
+ * The CMS entry point.
+ *
+ * This lives in src/pages/ rather than public/ deliberately. Astro's dev server
+ * serves files in public/ by exact path only -- it does not resolve directory
+ * indexes -- so public/admin/index.html was reachable at /admin/index.html but
+ * 404'd at /admin/ during development, while GitHub Pages served /admin/ fine.
+ * That split meant the URL that works in production was broken locally.
+ *
+ * As a page route it resolves at /admin/ in both environments and still builds
+ * to dist/admin/index.html, so the deployed path is unchanged.
+ *
+ * config.yml stays in public/admin/ -- it is data the CMS fetches at runtime,
+ * not a route, and the CMS looks for it next to this page.
+ */
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Keep the admin UI out of search results. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Portfolio CMS</title>
+  </head>
+  <body>
+    <script is:inline src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+  </body>
+</html>
