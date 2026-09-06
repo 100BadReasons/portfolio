@@ -1,134 +1,89 @@
-# Publishing setup
+# Using the CMS
 
-Five steps. Steps 1–4 need your accounts, so they're yours to run; I can't
-authenticate as you. Step 5 is the only place I edit files again.
+The dashboard is already live at
+**https://100badreasons.github.io/portfolio/admin/**
 
----
-
-## 0. Prerequisite: a github.com login
-
-Your `gh` CLI is authenticated to **github.ibm.com** (IBM Enterprise), not
-github.com. A personal portfolio shouldn't live on your employer's instance,
-and Enterprise can't serve `100badreasons.github.io`.
-
-```bash
-gh auth login --hostname github.com --web
-```
-
-That adds a second account; your IBM login is untouched. Verify with
-`gh auth status` — you should see both hosts listed.
+There is nothing to deploy. Two ways in, depending on the device.
 
 ---
 
-## 1. Create the repo and push
+## Desktop: no setup at all
 
-From `Code/personal/portfolio`:
+Open the admin URL and click **Work with Local Repository**, then pick the
+`portfolio` folder. The CMS edits your local files directly through the browser's
+File System Access API — no token, no network, no commits until you decide.
 
-```bash
-gh repo create portfolio --public --source=. --remote=origin --push
-```
+Chromium-based browsers only (Chrome, Edge, Arc, Brave). Safari and Firefox do
+not implement the API.
 
-Then enable Pages: **Settings → Pages → Source: GitHub Actions**.
-
-The first deploy runs automatically. Site lands at
-`https://100badreasons.github.io/portfolio/`.
-
-> Note the casing: your account is `100BadReasons`, but GitHub Pages serves the
-> hostname lowercased, so the live site is `100badreasons.github.io`. `site` in
-> `astro.config.mjs` is already set to the lowercase form; the CMS `repo:` field
-> uses the exact account casing. Both are correct as written.
+Changes appear immediately in `npm run dev`. Commit and push when ready.
 
 ---
 
-## 2. Register a GitHub OAuth app
+## Phone (and Safari/Firefox): one token, five minutes
 
-Go to https://github.com/settings/applications/new
+Open the admin URL and click **Sign In with Token**. The dialog links straight to
+GitHub's token page with the required scopes pre-selected — use that link rather
+than navigating there yourself, so the scopes are right.
 
-| Field | Value |
+Prefer a **fine-grained** token if it works for you, since it can be locked to
+this one repository:
+
+| Setting | Value |
 |---|---|
-| Application name | `Portfolio CMS` |
-| Homepage URL | `https://100badreasons.github.io/portfolio/` |
-| Authorization callback URL | `https://REPLACE_AFTER_STEP_3.workers.dev/callback` |
+| Repository access | Only select repositories → `portfolio` |
+| Permissions → Contents | Read and write |
+| Permissions → Metadata | Read-only (added automatically) |
+| Expiration | 90 days is a reasonable default |
 
-You won't know the callback URL until step 3, so put a placeholder and come
-back to correct it. **Save the Client ID and Client Secret** — the secret is
-shown once.
+Paste the token into the dialog. It is stored in that browser's local storage
+and never leaves your device — it is not committed, and it is not in this repo.
 
----
-
-## 3. Deploy the OAuth worker
-
-Sveltia CMS runs entirely in your browser, but the GitHub OAuth handshake needs
-a client secret, and a secret can't live in a static page. This tiny worker is
-the only server-side piece in the whole architecture. Free tier covers it many
-times over.
-
-```bash
-git clone https://github.com/sveltia/sveltia-cms-auth.git
-cd sveltia-cms-auth
-npx wrangler deploy
-```
-
-Note the deployed URL (`https://sveltia-cms-auth.<subdomain>.workers.dev`), then
-in the Cloudflare dashboard under **Settings → Variables** add:
-
-| Variable | Value |
-|---|---|
-| `GITHUB_CLIENT_ID` | from step 2 |
-| `GITHUB_CLIENT_SECRET` | from step 2 — **click Encrypt** |
-| `ALLOWED_DOMAINS` | `100badreasons.github.io` |
-
-`ALLOWED_DOMAINS` is what stops anyone else pointing their CMS at your worker.
-Don't skip it.
-
-Now go back to step 2 and fix the callback URL to
-`<your-worker-url>/callback`.
+**Caveats, stated plainly.** A token in browser storage is only as safe as the
+device holding it. Set an expiration rather than "no expiration", don't paste it
+into a shared or public machine, and if a phone goes missing, revoke it at
+<https://github.com/settings/tokens>. Revoking is instant and costs you nothing
+but signing in again.
 
 ---
 
-## 4. Point the CMS at both
+## Why there's no OAuth worker
 
-Edit `public/admin/config.yml`. `repo` is already correct; you only need to
-replace the `base_url` placeholder with your worker URL:
+Sveltia can also authenticate through a self-hosted OAuth broker — the
+`sveltia-cms-auth` Cloudflare Worker. That exists so *multiple* or non-technical
+users get a plain "Sign in with GitHub" button without touching tokens.
 
-```yaml
-backend:
-  name: github
-  repo: 100BadReasons/portfolio
-  branch: main
-  base_url: https://sveltia-cms-auth.<subdomain>.workers.dev
-```
-
-Commit and push. The CMS is then live at
-`https://100badreasons.github.io/portfolio/admin/` — works on desktop and
-phone, same URL.
+For a single author it is pure overhead: a GitHub OAuth app, a Cloudflare
+account, a deployed worker, and two secrets to rotate — to replace one token.
+Sveltia's own documentation says most people don't need it. If you ever add
+collaborators, that's the moment to set it up, and `base_url` in
+`public/admin/config.yml` is the only line that changes.
 
 ---
 
-## 5. How the loop runs
+## How publishing works
 
 ```
 phone or desktop -> /admin -> commit to main -> Actions -> Pages
 ```
 
-Every save commits to `main` and triggers a rebuild (~90s including the
-Chromium install for Mermaid).
+Every save commits to `main` and triggers a rebuild (~90s, including the
+Chromium install for build-time Mermaid).
 
-**Uploads land as drafts.** `published` defaults to off, so a half-finished
-entry is visible to you locally but never deploys. Turning it on requires
-metrics, a pipeline diagram, an engineering challenge, and a tech stack — the
-build fails otherwise. That's deliberate: it's what makes uploading from a
-phone safe.
+**Uploads land as drafts.** `published` defaults to off, so a half-finished entry
+is visible locally but never deploys. Turning it on requires metrics, a pipeline
+diagram, an engineering challenge and a tech stack — the build fails otherwise.
+That is what makes uploading from a phone safe.
 
 ### Video
 
-Heavy video never enters git. Upload to Vimeo or YouTube from their app, then
-add a **Deep-dive media** entry in the CMS and paste the ID. Only silent
-preview loops under 5 MB belong in the repo.
+Heavy video never enters git. Upload to Vimeo or YouTube from their app, then add
+a **Deep-dive media** entry and paste the ID. Only silent preview loops under
+5 MB belong in the repo.
 
 ### The one maintenance cost
 
 `public/admin/config.yml` and `src/content.config.ts` describe the same shape in
-two languages. They can drift. The Zod schema wins: if the CMS writes something
-Zod rejects, the build fails rather than deploying bad data. Change one, change
-the other.
+two languages and can drift. The Zod schema wins: if the CMS writes something it
+rejects, the build fails rather than deploying bad data. Change one, change the
+other.
