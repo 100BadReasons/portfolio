@@ -15,3 +15,15 @@
 export const LAUNCHED = false;
 
 export const SITE_NAME = '100BadReasons';
+
+/**
+ * Contact details, in one place so the footer, structured data, and any future
+ * about page can never disagree. The brand is the headline; the legal name
+ * lives here so a case study can still be traced back to a person.
+ */
+export const CONTACT = {
+  name: 'Kendall Willis',
+  email: 'kendall.willis@gmail.com',
+  linkedin: 'https://www.linkedin.com/in/kendall-willis/',
+  cta: 'Let\u2019s Work',
+} as const;

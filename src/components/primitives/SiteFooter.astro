@@ -1,0 +1,140 @@
+---
+import { CONTACT } from '../../lib/site';
+
+/**
+ * Contact footer. Rendered at the bottom of every page by BaseLayout, so it
+ * also closes each case study — which is where a "let's work" prompt actually
+ * lands, right after someone has read the work.
+ *
+ * The email is a plain mailto:. That is scrapeable by spam harvesters; the
+ * alternatives (JS-assembled addresses, entity encoding) either break without
+ * JavaScript or are trivially defeated, and this site ships 0 KB of JS by
+ * design. Usability wins. Say the word if you'd rather use a contact form.
+ */
+---
+<footer class="contact" id="contact">
+  <div class="inner">
+    <h2 class="cta">{CONTACT.cta}</h2>
+
+    <address>
+      <span class="name">{CONTACT.name}</span>
+
+      <ul class="links">
+        <li>
+          <span class="label">Email</span>
+          <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+        </li>
+        <li>
+          <span class="label">LinkedIn</span>
+          <a href={CONTACT.linkedin} target="_blank" rel="noopener noreferrer">
+            linkedin.com/in/kendall-willis
+            <span class="ext" aria-hidden="true">&#8599;</span>
+            <span class="sr-only">(opens in a new tab)</span>
+          </a>
+        </li>
+      </ul>
+    </address>
+  </div>
+</footer>
+
+<style>
+  /* Deliberately restrained: this previews the editorial direction without
+     pre-empting the design system. Tokens get hoisted to tokens.css later. */
+  .contact {
+    --rule: color-mix(in srgb, currentColor 18%, transparent);
+    --muted: color-mix(in srgb, currentColor 55%, transparent);
+
+    margin-top: 6rem;
+    border-top: 1px solid var(--rule);
+    padding: 3rem 0 4rem;
+  }
+
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem 3rem;
+  }
+
+  .cta {
+    margin: 0;
+    font-size: clamp(2rem, 7vw, 3.75rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  address {
+    font-style: normal;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .name {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .links li {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1px;
+    transition: border-color 120ms ease;
+  }
+
+  a:hover,
+  a:focus-visible {
+    border-bottom-color: currentColor;
+  }
+
+  /* Never remove the focus ring — keyboard users need to see where they are. */
+  a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .ext {
+    font-size: 0.8em;
+    color: var(--muted);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    a { transition: none; }
+  }
+</style>

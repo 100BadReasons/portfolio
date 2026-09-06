@@ -1,6 +1,7 @@
 ---
 import { absoluteUrl, withBase } from '../lib/url';
 import { LAUNCHED, SITE_NAME } from '../lib/site';
+import SiteFooter from '../components/primitives/SiteFooter.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -33,5 +34,6 @@ const canonical = absoluteUrl(path, Astro.site);
   </head>
   <body>
     <slot />
+    <SiteFooter />
   </body>
 </html>
