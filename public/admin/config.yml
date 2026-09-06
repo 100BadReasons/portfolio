@@ -11,17 +11,20 @@ backend:
   name: github
   repo: 100BadReasons/portfolio
   branch: main
-  # No `base_url`, and that is deliberate.
+
+  # Token-only sign-in, deliberately.
   #
-  # base_url points at a self-hosted OAuth broker (the sveltia-cms-auth
-  # Cloudflare Worker). That broker exists so *multiple* or non-technical
-  # users can sign in with a normal GitHub button. For a single author it is
-  # pure overhead -- an OAuth app, a Cloudflare account and a deployed worker
-  # to maintain. Sign in with a personal access token instead: same access,
-  # works on mobile, no infrastructure. See SETUP-CMS.md.
+  # Default is [oauth, token]. The OAuth button requires `base_url` pointing at
+  # a self-hosted broker (the sveltia-cms-auth Cloudflare Worker); with no
+  # base_url it silently falls back to *Netlify's* OAuth service for Decap
+  # backward compatibility. This site is not on Netlify, so that flow can never
+  # complete -- it hangs forever on "Signing in...". Offering a button that
+  # cannot work is worse than not offering it.
   #
-  # Leaving a placeholder URL here would be worse than omitting it: the CMS
-  # would show a "Sign in with GitHub" button that always fails.
+  # A personal access token gives the same access with no OAuth app, no
+  # Cloudflare account and no worker to maintain. If collaborators are ever
+  # added, deploy the worker, set base_url, and add `oauth` back to this list.
+  auth_methods: [token]
 
 # Global fallback: anything not covered by a collection-level override.
 media_folder: public/media
