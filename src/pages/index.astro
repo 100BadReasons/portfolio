@@ -22,7 +22,14 @@ const present = [...new Set(projects.map((p) => p.data.category))] as CategoryId
 
   <main class="feed">
     {projects.map((project) => <FeedPost project={project} />)}
-    <p class="empty" hidden>No projects in this discipline yet.</p>
+
+    {/* Two distinct empty states. Nothing published at all is a different
+        situation from a filter that matched nothing, and saying "in this
+        discipline" when the whole feed is empty reads as a bug. */}
+    {projects.length === 0 && (
+      <p class="empty">Work in progress &mdash; the first projects go live shortly.</p>
+    )}
+    <p class="empty" data-filter-empty hidden>No projects in this discipline yet.</p>
   </main>
 </BaseLayout>
 
@@ -51,7 +58,7 @@ const present = [...new Set(projects.map((p) => p.data.category))] as CategoryId
    */
   const posts = [...document.querySelectorAll<HTMLElement>('.post')];
   const pills = [...document.querySelectorAll<HTMLButtonElement>('.pill')];
-  const empty = document.querySelector<HTMLElement>('.empty');
+  const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
 
   function apply(filter: string, push = true) {
     let shown = 0;
@@ -60,7 +67,9 @@ const present = [...new Set(projects.map((p) => p.data.category))] as CategoryId
       post.hidden = !match;
       if (match) shown++;
     }
-    if (empty) empty.hidden = shown > 0;
+    // Only meaningful when there are posts to filter; with an empty feed the
+    // server-rendered "work in progress" message covers it instead.
+    if (empty) empty.hidden = shown > 0 || posts.length === 0;
 
     for (const pill of pills) {
       const on = pill.dataset.filter === filter;
@@ -85,8 +94,10 @@ const present = [...new Set(projects.map((p) => p.data.category))] as CategoryId
     apply(new URL(location.href).searchParams.get('filter') ?? 'all', false);
   });
 
-  const initial = new URL(location.href).searchParams.get('filter');
-  if (initial) apply(initial, false);
+  // Always run once on load. Previously this only ran when a ?filter= param
+  // was present, so on a feed with no visible posts the empty state stayed
+  // hidden and the page rendered a blank gap.
+  apply(new URL(location.href).searchParams.get('filter') ?? 'all', false);
 
   /* --- in-view autoplay, Instagram style --- */
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
