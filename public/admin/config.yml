@@ -202,6 +202,16 @@ collections:
           - { label: Delta, name: delta, widget: string, required: false }
           - { label: How measured, name: method, widget: text, required: false }
 
+      - label: Social card
+        name: og_image
+        widget: image
+        required: false
+        # Lives in /public/og, not the collection's relative media folder,
+        # because the schema validates this path as starting with /og/.
+        media_folder: /public/og
+        public_folder: /og
+        hint: '1200x630 recommended. Falls back to the preview media if unset.'
+
       - label: Case study
         name: body
         widget: markdown

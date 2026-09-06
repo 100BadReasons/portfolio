@@ -12,6 +12,11 @@ export function withBase(path: string): string {
   if (/^(https?:)?\/\//.test(path) || path.startsWith('#') || path.startsWith('mailto:')) {
     return path;
   }
+  // Idempotent: Astro already prefixes the URLs it generates for processed
+  // assets, so passing one back through here must not prefix it twice.
+  if (BASE && (path === BASE || path.startsWith(`${BASE}/`))) {
+    return path;
+  }
   return `${BASE}/${path.replace(/^\//, '')}`;
 }
 

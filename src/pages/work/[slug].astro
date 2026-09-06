@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getWork } from '../../lib/collection';
@@ -17,6 +17,32 @@ const { Content } = await render(project);
 const { data } = project;
 const preview = data.featured_preview;
 
+/**
+ * Explicit social card wins; otherwise derive one from the preview media so a
+ * shared link is never a blank card.
+ *
+ * Deliberately NOT the raw import: that would point unfurlers at the multi-MB
+ * source PNG and, because the prune step only removes *unreferenced* assets,
+ * would drag the full-size original back into every published build. This
+ * renders a 1.91:1 JPEG instead -- JPEG because Slack, iMessage and X still
+ * handle AVIF poorly, and 1080 wide because Astro will not upscale past the
+ * source and the render is 1080px across.
+ *
+ * withBase() is idempotent, so handing it an already-prefixed URL is safe.
+ */
+const ogFallback =
+  preview.kind === 'image'
+    ? (await getImage({
+        src: preview.src,
+        width: 1080,
+        height: 566,
+        format: 'jpeg',
+        quality: 78,
+      })).src
+    : preview.poster;
+
+const ogImage = data.og_image ?? ogFallback;
+
 const posted = data.date.toLocaleDateString('en-US', {
   month: 'long', day: 'numeric', year: 'numeric',
 });
@@ -33,7 +59,7 @@ const stackGroups = [
   title={`${data.title} — ${SITE_NAME}`}
   description={data.tagline}
   path={`/work/${project.id}`}
-  ogImage={data.og_image}
+  ogImage={ogImage}
 >
   <article class="case">
     <nav class="back"><a href={withBase('/')}>&#8592; Back to feed</a></nav>
