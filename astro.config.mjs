@@ -59,19 +59,24 @@ export default defineConfig({
             // shift, diagram text is selectable and crawlable.
             strategy: 'inline-svg',
             mermaidConfig: {
-              theme: 'base',
-              // Must be a concrete stack, not a CSS variable: Mermaid measures
-              // label widths in headless Chromium at build time, where var()
-              // cannot resolve. A variable silently produces clipped nodes.
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+              // Mermaid's built-in dark theme rather than 'base'. Both can be made
+              // to work, but 'base' derives a dozen colours from primaryColor and
+              // needs each one overridden by hand; 'dark' is internally coherent
+              // and needs only the few below to match the site palette.
+              theme: 'dark',
+              darkMode: true,
+              fontFamily: 'Helvetica Neue, Helvetica, Arial, Liberation Sans, sans-serif',
               flowchart: { curve: 'linear', htmlLabels: true },
               themeVariables: {
-                primaryColor: '#ffffff',
-                primaryTextColor: '#0a0a0a',
-                primaryBorderColor: '#0a0a0a',
-                lineColor: '#0a0a0a',
-                secondaryColor: '#f4f4f4',
-                tertiaryColor: '#ffffff',
+                background: '#000000',
+                mainBkg: '#1a1a1a',
+                nodeBorder: '#404040',
+                lineColor: '#a8a8a8',
+                textColor: '#f5f5f5',
+                nodeTextColor: '#f5f5f5',
+                clusterBkg: '#121212',
+                clusterBorder: '#262626',
+                edgeLabelBackground: '#000000',
                 fontSize: '13px',
               },
             },

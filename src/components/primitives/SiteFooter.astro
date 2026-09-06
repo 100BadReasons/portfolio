@@ -41,15 +41,17 @@ import { CONTACT } from '../../lib/site';
   /* Deliberately restrained: this previews the editorial direction without
      pre-empting the design system. Tokens get hoisted to tokens.css later. */
   .contact {
-    --rule: color-mix(in srgb, currentColor 18%, transparent);
-    --muted: color-mix(in srgb, currentColor 55%, transparent);
+    --rule: var(--border);
+    --muted: var(--text-dim);
 
-    margin-top: 6rem;
+    margin-top: 5rem;
     border-top: 1px solid var(--rule);
-    padding: 3rem 0 4rem;
   }
 
   .inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 3rem 1rem 4rem;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;

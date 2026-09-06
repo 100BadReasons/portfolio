@@ -1,11 +1,11 @@
 ---
-// PLACEHOLDER CASE STUDY ROUTE — proves getStaticPaths, MDX rendering,
-// build-time Mermaid, and image processing. Real layout still to come.
 import { Image } from 'astro:assets';
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getWork } from '../../lib/collection';
+import { CATEGORIES } from '../../lib/categories';
 import { SITE_NAME } from '../../lib/site';
+import { withBase } from '../../lib/url';
 
 export async function getStaticPaths() {
   const projects = await getWork();
@@ -16,28 +16,242 @@ const { project } = Astro.props;
 const { Content } = await render(project);
 const { data } = project;
 const preview = data.featured_preview;
+
+const posted = data.date.toLocaleDateString('en-US', {
+  month: 'long', day: 'numeric', year: 'numeric',
+});
+
+const stackGroups = [
+  ['CAD / 3D', data.tech_stack.cad_3d],
+  ['Frontend / Logic', data.tech_stack.frontend_logic],
+  ['Motion / Compositing', data.tech_stack.motion_compositing],
+  ['AI Orchestration', data.tech_stack.ai_orchestration],
+  ['Infrastructure', data.tech_stack.infrastructure],
+].filter(([, items]) => (items as string[]).length > 0) as [string, string[]][];
 ---
 <BaseLayout
   title={`${data.title} — ${SITE_NAME}`}
   description={data.tagline}
   path={`/work/${project.id}`}
+  ogImage={data.og_image}
 >
-  <article>
-    <h1>{data.title}{!data.published && <b> · DRAFT</b>}</h1>
-    <p>{data.tagline}</p>
-    <p><strong>Role:</strong> {data.role}</p>
+  <article class="case">
+    <nav class="back"><a href={withBase('/')}>&#8592; Back to feed</a></nav>
+
+    <header class="head">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="who">
+        <span class="handle">{SITE_NAME}</span>
+        <span class="place">{CATEGORIES[data.category].label}</span>
+      </div>
+      {!data.published && <span class="draft">Draft</span>}
+    </header>
 
     {preview.kind === 'image' && (
-      <Image
-        src={preview.src}
-        alt={preview.alt}
-        widths={[640, 1080]}
-        sizes="(max-width: 800px) 92vw, 720px"
-        format="avif"
-        loading="eager"
-      />
+      <div class="hero">
+        <Image
+          src={preview.src}
+          alt={preview.alt}
+          widths={[640, 1080]}
+          sizes="(max-width: 720px) 100vw, 680px"
+          format="avif"
+          loading="eager"
+        />
+      </div>
     )}
 
-    <Content />
+    <div class="col">
+      <h1>{data.title}</h1>
+      <p class="tagline">{data.tagline}</p>
+
+      <dl class="meta">
+        <div><dt>Role</dt><dd>{data.role}</dd></div>
+        <div><dt>Date</dt><dd><time datetime={data.date.toISOString()}>{posted}</time></dd></div>
+      </dl>
+
+      {(data.live_url || data.repo_url) && (
+        <p class="links">
+          {data.live_url && <a href={data.live_url} target="_blank" rel="noopener noreferrer">Live site</a>}
+          {data.repo_url && <a href={data.repo_url} target="_blank" rel="noopener noreferrer">Source code</a>}
+        </p>
+      )}
+
+      {data.metrics.length > 0 && (
+        <section class="metrics" aria-label="Results">
+          {data.metrics.map((m) => (
+            <div class="metric">
+              <span class="value">{m.value}</span>
+              <span class="label">{m.label}</span>
+              {m.baseline && <span class="from">from {m.baseline}</span>}
+              {m.method && <span class="method">{m.method}</span>}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {stackGroups.length > 0 && (
+        <section class="stack" aria-label="Tech stack">
+          {stackGroups.map(([label, items]) => (
+            <div class="group">
+              <h2>{label}</h2>
+              <ul>{items.map((i) => <li>{i}</li>)}</ul>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {data.engineering_challenge && (
+        <section class="challenge">
+          <h2>Engineering challenge</h2>
+          <p class="constraint">{data.engineering_challenge.constraint}</p>
+          <p class="resolution">{data.engineering_challenge.resolution}</p>
+        </section>
+      )}
+
+      {data.llm_orchestration && (
+        <section class="llm">
+          <h2>LLM orchestration</h2>
+          <p>{data.llm_orchestration.summary}</p>
+          <ul class="chips">
+            {data.llm_orchestration.patterns.map((p) => <li>{p}</li>)}
+            <li class="autonomy">{data.llm_orchestration.autonomy}</li>
+          </ul>
+          {data.llm_orchestration.human_in_the_loop && (
+            <p class="hitl"><strong>Human in the loop:</strong> {data.llm_orchestration.human_in_the_loop}</p>
+          )}
+        </section>
+      )}
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      {data.deep_dive_media.length > 0 && (
+        <section class="deep" aria-label="Deep dive media">
+          <h2>Deep dive</h2>
+          {data.deep_dive_media.map((m) => (
+            <figure>
+              {m.kind === 'vimeo' && (
+                <iframe
+                  src={`https://player.vimeo.com/video/${m.id}${m.hash ? `?h=${m.hash}` : ''}`}
+                  title={m.caption} loading="lazy" allowfullscreen
+                ></iframe>
+              )}
+              {m.kind === 'youtube' && (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${m.id}`}
+                  title={m.caption} loading="lazy" allowfullscreen
+                ></iframe>
+              )}
+              {m.kind === 'r2' && (
+                <video controls playsinline preload="none" poster={m.poster}>
+                  <source src={m.src} />
+                </video>
+              )}
+              <figcaption>{m.caption}</figcaption>
+            </figure>
+          ))}
+        </section>
+      )}
+    </div>
   </article>
 </BaseLayout>
+
+<style>
+  .case { max-width: 680px; margin: 0 auto; padding-bottom: 2rem; }
+  .back { padding: 1.25rem 1rem 0.5rem; }
+  .back a { font-size: 0.8rem; color: var(--text-dim); text-decoration: none; }
+  .back a:hover { color: var(--text); }
+
+  .head { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 1rem 0.85rem; }
+  .dot {
+    width: 32px; height: 32px; border-radius: 50%; flex: none;
+    background: conic-gradient(from 200deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34);
+  }
+  .who { display: grid; line-height: 1.25; }
+  .handle { font-size: 0.85rem; font-weight: 600; }
+  .place { font-size: 0.75rem; color: var(--text-dim); }
+  .draft {
+    margin-left: auto; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--bg); background: var(--text-dim);
+    padding: 0.15rem 0.4rem; border-radius: 3px;
+  }
+
+  .hero { background: var(--surface); }
+
+  .col { padding: 1.5rem 1rem 0; display: grid; gap: 1.75rem; }
+  h1 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.25rem); font-weight: 600; letter-spacing: -0.03em; }
+  .tagline { margin: -1.25rem 0 0; color: var(--text-dim); font-size: 1rem; }
+
+  .meta { margin: 0; display: grid; gap: 0.6rem; }
+  .meta div { display: grid; grid-template-columns: 5rem 1fr; gap: 0.75rem; align-items: baseline; }
+  .meta dt {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim);
+  }
+  .meta dd { margin: 0; font-size: 0.9rem; }
+
+  .links { margin: 0; display: flex; gap: 1.25rem; }
+  .links a { font-size: 0.85rem; font-weight: 600; color: var(--accent); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+
+  .metrics {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px;
+    background: var(--border); border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .metric { background: var(--bg); padding: 1rem; display: grid; gap: 0.25rem; }
+  .metric .value { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+  .metric .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
+  .metric .from, .metric .method {
+    font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim);
+  }
+
+  .stack { display: grid; gap: 1rem; }
+  .stack h2, .challenge h2, .llm h2, .deep h2 {
+    margin: 0 0 0.5rem; font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--text-dim); font-weight: 600;
+  }
+  .stack ul, .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .stack li, .chips li {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 3px; padding: 0.15rem 0.45rem;
+  }
+  .chips .autonomy { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+
+  .challenge .constraint { margin: 0 0 0.75rem; font-size: 1.05rem; }
+  .challenge .resolution { margin: 0; color: var(--text-dim); }
+  .llm p { margin: 0 0 0.75rem; }
+  .hitl { font-size: 0.85rem; color: var(--text-dim); }
+
+  /* --- MDX body --- */
+  .prose { line-height: 1.7; }
+  .prose :global(h2) { margin: 2.25rem 0 0.6rem; font-size: 1.15rem; font-weight: 600; }
+  .prose :global(h3) { margin: 1.75rem 0 0.5rem; font-size: 1rem; font-weight: 600; }
+  .prose :global(p) { margin: 0 0 1rem; }
+  .prose :global(a) { color: var(--accent); }
+  .prose :global(ul), .prose :global(ol) { padding-left: 1.15rem; }
+  .prose :global(pre) {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.9rem 1rem; overflow-x: auto; font-size: 0.8rem;
+  }
+  .prose :global(code) { font-size: 0.85em; }
+  .prose :global(blockquote) {
+    margin: 1.25rem 0; padding-left: 1rem;
+    border-left: 2px solid var(--border); color: var(--text-dim);
+  }
+  /* Build-time Mermaid SVG: give it room and let it scroll rather than shrink
+     to illegibility on a phone. */
+  .prose :global(svg[id^='mermaid']) {
+    max-width: 100%; height: auto; margin: 1.25rem 0;
+  }
+  .prose :global(p:has(> svg[id^='mermaid'])) { overflow-x: auto; }
+
+  .deep { display: grid; gap: 1.5rem; }
+  .deep figure { margin: 0; display: grid; gap: 0.5rem; }
+  .deep iframe, .deep video {
+    width: 100%; aspect-ratio: 16 / 9; border: 0;
+    background: var(--surface); border-radius: var(--radius);
+  }
+  .deep figcaption { font-size: 0.8rem; color: var(--text-dim); }
+</style>

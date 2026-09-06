@@ -1,0 +1,61 @@
+---
+import { CATEGORIES, type CategoryId } from '../../lib/categories';
+
+interface Props { active: CategoryId[] }
+const { active } = Astro.props;
+---
+<nav class="filters" aria-label="Filter projects by discipline">
+  <button type="button" class="pill is-active" data-filter="all" aria-pressed="true">
+    All
+  </button>
+  {active.map((id) => (
+    <button type="button" class="pill" data-filter={id} aria-pressed="false">
+      {CATEGORIES[id].short}
+    </button>
+  ))}
+</nav>
+
+<style>
+  .filters {
+    position: sticky;
+    top: 60px;              /* sits directly under the top bar */
+    z-index: 15;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .pill {
+    flex: none;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    cursor: pointer;
+    transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+  }
+  .pill:hover { color: var(--text); }
+  .pill.is-active {
+    color: var(--bg);
+    background: var(--text);
+    border-color: var(--text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pill { transition: none; }
+  }
+</style>

@@ -1,46 +1,113 @@
 ---
-// PLACEHOLDER INDEX — proves routing, the content query, and image processing.
-// The real grid, filter bar, and video-hover layer are still to come.
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { CATEGORIES } from '../lib/categories';
+import ProfileHeader from '../components/feed/ProfileHeader.astro';
+import FilterBar from '../components/feed/FilterBar.astro';
+import FeedPost from '../components/feed/FeedPost.astro';
 import { getWork } from '../lib/collection';
 import { SITE_NAME } from '../lib/site';
-import { workPath } from '../lib/url';
+import type { CategoryId } from '../lib/categories';
 
 const projects = await getWork();
+
+// Only offer filters for disciplines that actually have work in them.
+const present = [...new Set(projects.map((p) => p.data.category))] as CategoryId[];
 ---
-<BaseLayout title={`${SITE_NAME} — Work`} description="Software, 3D product design, and motion." path="/">
-  <h1>Work</h1>
-  <ul class="grid">
-    {projects.map((p) => (
-      <li>
-        <a href={workPath(p.id)}>
-          {p.data.featured_preview.kind === 'image' ? (
-            <Image
-              src={p.data.featured_preview.src}
-              alt={p.data.featured_preview.alt}
-              widths={[320, 640, 960]}
-              sizes="(max-width: 700px) 90vw, 320px"
-              format="avif"
-              loading="lazy"
-            />
-          ) : (
-            <img
-              src={p.data.featured_preview.poster}
-              alt={p.data.featured_preview.alt}
-              width={p.data.featured_preview.width}
-              height={p.data.featured_preview.height}
-              loading="lazy"
-            />
-          )}
-          <span>{p.data.title}</span>
-        </a>
-        <small>
-          {CATEGORIES[p.data.category].short}
-          {!p.data.published && <b> · DRAFT</b>}
-        </small>
-      </li>
-    ))}
-  </ul>
+<BaseLayout
+  title={`${SITE_NAME} — Work`}
+  description="Software engineering, 3D product design, and motion by Kendall Willis."
+  path="/"
+>
+  <ProfileHeader projectCount={projects.length} categoryCount={present.length} />
+  <FilterBar active={present} />
+
+  <main class="feed">
+    {projects.map((project) => <FeedPost project={project} />)}
+    <p class="empty" hidden>No projects in this discipline yet.</p>
+  </main>
 </BaseLayout>
+
+<style>
+  .feed { padding: 1.5rem 0 0; }
+  .empty {
+    max-width: 470px;
+    margin: 3rem auto;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+  @media (max-width: 640px) {
+    .feed { padding-top: 0.75rem; }
+  }
+</style>
+
+<script>
+  /**
+   * The only client JavaScript on the site. Two jobs:
+   *   1. filter the feed by discipline
+   *   2. autoplay muted preview loops when they scroll into view
+   *
+   * Both degrade gracefully: with JS off, every post renders and videos simply
+   * do not autoplay. Nothing is hidden behind script.
+   */
+  const posts = [...document.querySelectorAll<HTMLElement>('.post')];
+  const pills = [...document.querySelectorAll<HTMLButtonElement>('.pill')];
+  const empty = document.querySelector<HTMLElement>('.empty');
+
+  function apply(filter: string, push = true) {
+    let shown = 0;
+    for (const post of posts) {
+      const match = filter === 'all' || post.dataset.category === filter;
+      post.hidden = !match;
+      if (match) shown++;
+    }
+    if (empty) empty.hidden = shown > 0;
+
+    for (const pill of pills) {
+      const on = pill.dataset.filter === filter;
+      pill.classList.toggle('is-active', on);
+      pill.setAttribute('aria-pressed', String(on));
+    }
+
+    // Keep the filter in the URL so a filtered view is shareable and the
+    // back button behaves the way people expect.
+    if (push) {
+      const url = new URL(location.href);
+      if (filter === 'all') url.searchParams.delete('filter');
+      else url.searchParams.set('filter', filter);
+      history.pushState({ filter }, '', url);
+    }
+  }
+
+  for (const pill of pills) {
+    pill.addEventListener('click', () => apply(pill.dataset.filter ?? 'all'));
+  }
+  addEventListener('popstate', () => {
+    apply(new URL(location.href).searchParams.get('filter') ?? 'all', false);
+  });
+
+  const initial = new URL(location.href).searchParams.get('filter');
+  if (initial) apply(initial, false);
+
+  /* --- in-view autoplay, Instagram style --- */
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const videos = [...document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]')];
+
+  if (videos.length && !reduced && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const video = entry.target as HTMLVideoElement;
+          if (entry.isIntersecting) {
+            // preload="none" means the source is only fetched once a post is
+            // actually approaching the viewport, so off-screen posts cost 0 KB.
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        }
+      },
+      { rootMargin: '128px 0px', threshold: 0.4 },
+    );
+    for (const video of videos) io.observe(video);
+  }
+</script>

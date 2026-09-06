@@ -1,0 +1,42 @@
+---
+import { SITE_NAME } from '../../lib/site';
+import { withBase } from '../../lib/url';
+---
+<header class="topbar">
+  <div class="inner">
+    <a class="brand" href={withBase('/')}>{SITE_NAME}</a>
+    <a class="contact-link" href="#contact">Contact</a>
+  </div>
+</header>
+
+<style>
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 1rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .contact-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+</style>

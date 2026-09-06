@@ -2,6 +2,7 @@
 import { absoluteUrl, withBase } from '../lib/url';
 import { LAUNCHED, SITE_NAME } from '../lib/site';
 import SiteFooter from '../components/primitives/SiteFooter.astro';
+import TopBar from '../components/feed/TopBar.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -33,6 +34,7 @@ const canonical = absoluteUrl(path, Astro.site);
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
   </head>
   <body>
+    <TopBar />
     <slot />
     <SiteFooter />
   </body>

@@ -1,0 +1,61 @@
+---
+import { SITE_NAME, CONTACT } from '../../lib/site';
+
+interface Props { projectCount: number; categoryCount: number }
+const { projectCount, categoryCount } = Astro.props;
+---
+<section class="profile">
+  <!-- Instagram's gradient ring, built in CSS so it costs no image request. -->
+  <div class="avatar" aria-hidden="true"><span>100</span></div>
+
+  <div class="meta">
+    <h1>{SITE_NAME}</h1>
+    <dl class="stats">
+      <div><dt>projects</dt><dd>{projectCount}</dd></div>
+      <div><dt>disciplines</dt><dd>{categoryCount}</dd></div>
+    </dl>
+    <p class="bio">
+      <span class="realname">{CONTACT.name}</span>
+      Software engineering, 3D product design, and motion.
+    </p>
+  </div>
+</section>
+
+<style>
+  .profile {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 2rem 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+  }
+  .avatar {
+    flex: none;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+      linear-gradient(var(--bg), var(--bg)) padding-box,
+      conic-gradient(from 200deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34) border-box;
+    border: 3px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .meta { display: grid; gap: 0.6rem; }
+  h1 { margin: 0; font-size: 1.35rem; font-weight: 400; }
+  .stats { display: flex; gap: 1.75rem; margin: 0; }
+  .stats div { display: flex; gap: 0.35rem; }
+  .stats dt { order: 2; color: var(--text-dim); font-size: 0.9rem; }
+  .stats dd { order: 1; margin: 0; font-weight: 600; font-size: 0.9rem; }
+  .bio { margin: 0; font-size: 0.9rem; color: var(--text-dim); max-width: 46ch; }
+  .realname { display: block; color: var(--text); font-weight: 600; }
+
+  @media (max-width: 640px) {
+    .profile { gap: 1.25rem; align-items: flex-start; }
+    .avatar { width: 64px; height: 64px; font-size: 0.8rem; }
+  }
+</style>

@@ -1,0 +1,148 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { CATEGORIES } from '../../lib/categories';
+import { SITE_NAME } from '../../lib/site';
+import { workPath } from '../../lib/url';
+
+interface Props { project: CollectionEntry<'work'> }
+const { project } = Astro.props;
+const { data } = project;
+const preview = data.featured_preview;
+const href = workPath(project.id);
+
+const posted = data.date.toLocaleDateString('en-US', {
+  month: 'long', day: 'numeric', year: 'numeric',
+});
+
+// Flatten the categorised stack into the "tagged accounts" line.
+const tools = Object.values(data.tech_stack).flat().slice(0, 4);
+---
+<article class="post" data-category={data.category}>
+  <header class="post-head">
+    <span class="dot" aria-hidden="true"></span>
+    <div class="who">
+      <span class="handle">{SITE_NAME}</span>
+      <span class="place">{CATEGORIES[data.category].label}</span>
+    </div>
+    {!data.published && <span class="draft">Draft</span>}
+  </header>
+
+  <a class="media" href={href} aria-label={`Open case study: ${data.title}`}>
+    {preview.kind === 'image' ? (
+      <Image
+        src={preview.src}
+        alt={preview.alt}
+        widths={[470, 940]}
+        sizes="(max-width: 640px) 100vw, 470px"
+        format="avif"
+        loading="lazy"
+      />
+    ) : (
+      <video
+        muted
+        loop
+        playsinline
+        preload="none"
+        poster={preview.poster}
+        width={preview.width}
+        height={preview.height}
+        aria-label={preview.alt}
+        data-autoplay
+      >
+        <source src={preview.webm} type="video/webm" />
+        <source src={preview.mp4} type="video/mp4" />
+      </video>
+    )}
+  </a>
+
+  <div class="body">
+    <p class="caption">
+      <a class="handle" href={href}>{data.title}</a>
+      <span class="tagline">{data.tagline}</span>
+    </p>
+
+    {tools.length > 0 && (
+      <p class="tools">{tools.map((t) => <span class="tool">{t}</span>)}</p>
+    )}
+
+    <p class="links">
+      <a href={href}>View case study</a>
+      {data.live_url && <a href={data.live_url} target="_blank" rel="noopener noreferrer">Live</a>}
+      {data.repo_url && <a href={data.repo_url} target="_blank" rel="noopener noreferrer">Code</a>}
+    </p>
+
+    <time datetime={data.date.toISOString()}>{posted}</time>
+  </div>
+</article>
+
+<style>
+  .post {
+    max-width: 470px;          /* Instagram's desktop feed column */
+    margin: 0 auto 1.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+  }
+
+  .post-head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.75rem 1rem;
+  }
+  .dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: conic-gradient(from 200deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34);
+    flex: none;
+  }
+  .who { display: grid; line-height: 1.25; }
+  .handle { font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+  .place { font-size: 0.75rem; color: var(--text-dim); }
+  .draft {
+    margin-left: auto;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bg); background: var(--text-dim);
+    padding: 0.15rem 0.4rem; border-radius: 3px;
+  }
+
+  /* No cropping: media keeps its true aspect ratio. */
+  .media { display: block; background: var(--surface); }
+  .media :global(img),
+  .media video { width: 100%; height: auto; display: block; }
+
+  .body { padding: 0.85rem 1rem 1rem; display: grid; gap: 0.5rem; }
+  .caption { margin: 0; font-size: 0.875rem; }
+  .caption .handle { margin-right: 0.4rem; }
+  .tagline { color: var(--text-dim); }
+
+  .tools { margin: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .tool {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.12rem 0.4rem;
+  }
+
+  .links { margin: 0; display: flex; gap: 1rem; }
+  .links a {
+    font-size: 0.8rem; font-weight: 600;
+    color: var(--accent); text-decoration: none;
+  }
+  .links a:hover { text-decoration: underline; }
+
+  time {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 640px) {
+    .post { border-left: 0; border-right: 0; border-radius: 0; margin-bottom: 1rem; }
+  }
+</style>
