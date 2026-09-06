@@ -1,0 +1,36 @@
+---
+import { absoluteUrl, withBase } from '../lib/url';
+import { LAUNCHED } from '../lib/site';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  ogImage?: string;
+}
+const { title, description, path, ogImage } = Astro.props;
+const canonical = absoluteUrl(path, Astro.site);
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {/* Pre-launch: keep the work-in-progress site out of search results.
+        Flip LAUNCHED in src/lib/site.ts to remove this everywhere. */}
+    {!LAUNCHED && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    {ogImage && <meta property="og:image" content={absoluteUrl(ogImage, Astro.site)} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,45 @@
+---
+// PLACEHOLDER INDEX — proves routing, the content query, and image processing.
+// The real grid, filter bar, and video-hover layer are still to come.
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CATEGORIES } from '../lib/categories';
+import { getWork } from '../lib/collection';
+import { workPath } from '../lib/url';
+
+const projects = await getWork();
+---
+<BaseLayout title="Kendall Willis — Work" description="Software, 3D product design, and motion." path="/">
+  <h1>Work</h1>
+  <ul class="grid">
+    {projects.map((p) => (
+      <li>
+        <a href={workPath(p.id)}>
+          {p.data.featured_preview.kind === 'image' ? (
+            <Image
+              src={p.data.featured_preview.src}
+              alt={p.data.featured_preview.alt}
+              widths={[320, 640, 960]}
+              sizes="(max-width: 700px) 90vw, 320px"
+              format="avif"
+              loading="lazy"
+            />
+          ) : (
+            <img
+              src={p.data.featured_preview.poster}
+              alt={p.data.featured_preview.alt}
+              width={p.data.featured_preview.width}
+              height={p.data.featured_preview.height}
+              loading="lazy"
+            />
+          )}
+          <span>{p.data.title}</span>
+        </a>
+        <small>
+          {CATEGORIES[p.data.category].short}
+          {!p.data.published && <b> · DRAFT</b>}
+        </small>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

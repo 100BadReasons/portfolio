@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+*.log
+.env
+.env.production
+
+# Deep-tier masters never enter git — they live in R2 / Vimeo.
+# Keep the ingest folder local-only.
+media-src/

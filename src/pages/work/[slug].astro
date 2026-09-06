@@ -1,0 +1,42 @@
+---
+// PLACEHOLDER CASE STUDY ROUTE — proves getStaticPaths, MDX rendering,
+// build-time Mermaid, and image processing. Real layout still to come.
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getWork } from '../../lib/collection';
+
+export async function getStaticPaths() {
+  const projects = await getWork();
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { data } = project;
+const preview = data.featured_preview;
+---
+<BaseLayout
+  title={`${data.title} — Kendall Willis`}
+  description={data.tagline}
+  path={`/work/${project.id}`}
+>
+  <article>
+    <h1>{data.title}{!data.published && <b> · DRAFT</b>}</h1>
+    <p>{data.tagline}</p>
+    <p><strong>Role:</strong> {data.role}</p>
+
+    {preview.kind === 'image' && (
+      <Image
+        src={preview.src}
+        alt={preview.alt}
+        widths={[640, 1080]}
+        sizes="(max-width: 800px) 92vw, 720px"
+        format="avif"
+        loading="eager"
+      />
+    )}
+
+    <Content />
+  </article>
+</BaseLayout>

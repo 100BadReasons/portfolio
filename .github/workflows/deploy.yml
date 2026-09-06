@@ -1,0 +1,83 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: read the repo, mint an OIDC token, publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race. Queue instead of cancelling, so a rapid
+# second push can't leave the site on the older artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # rehype-mermaid renders every ```mermaid fence to SVG at build time via
+      # headless Chromium. ~40s of CI in exchange for zero Mermaid JS on the
+      # client. Drop this step only if you switch to strategy: 'pre-mermaid'.
+      - name: Install Chromium for build-time Mermaid rendering
+        run: npx playwright install --with-deps chromium
+
+      # Typechecks components AND validates every MDX frontmatter against the
+      # Zod schema. A malformed metric or an oversized preview clip fails here,
+      # before anything reaches production.
+      - name: Typecheck and validate content
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Guard preview-media budget
+        run: |
+          BYTES=$(du -sb public/media | cut -f1)
+          LIMIT=$((700 * 1024 * 1024))
+          echo "public/media = $((BYTES / 1024 / 1024)) MB (soft limit 700 MB)"
+          if [ "$BYTES" -gt "$LIMIT" ]; then
+            echo "::error::Preview media exceeds the 700 MB soft limit. Move assets to the R2 deep-dive tier."
+            exit 1
+          fi
+
+      - name: Report bundle size
+        run: |
+          echo "### Build output" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          du -sh dist >> "$GITHUB_STEP_SUMMARY"
+          find dist/_astro -name '*.js' -exec du -ch {} + 2>/dev/null | tail -1 >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,210 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+#
+# Sveltia CMS — mirrors src/content.config.ts.
+#
+# This file is a SECOND declaration of the schema, so the two can drift. The Zod
+# schema is the authority: the CMS can write frontmatter that Zod later rejects,
+# and when that happens the build fails loudly rather than deploying bad data.
+# If you change one, change the other.
+
+backend:
+  name: github
+  repo: 100BadReasons/portfolio
+  branch: main
+  # Deployed sveltia-cms-auth Cloudflare Worker. See SETUP-CMS.md step 3.
+  base_url: https://REPLACE_ME.workers.dev
+
+# Global fallback: anything not covered by a collection-level override.
+media_folder: public/media
+public_folder: /media
+
+# Uploads land as drafts, matching the schema's `published: false` default.
+publish_mode: simple
+
+collections:
+  - name: work
+    label: Work
+    label_singular: Project
+    folder: src/content/work
+    create: true
+    extension: mdx
+    format: yaml-frontmatter
+    slug: '{{fields.title | slugify}}'
+    # A RELATIVE media_folder resolves against this collection's folder
+    # (src/content/work) and makes the CMS write relative paths into
+    # frontmatter -- exactly what Astro's image() helper expects.
+    # Relative media folders must be declared per-collection, not globally.
+    media_folder: ../../assets/work
+    summary: '{{title}} — {{category}}{{#if published}}{{else}} (draft){{/if}}'
+    sortable_fields: [date, title, category]
+    fields:
+      - { label: Title, name: title, widget: string, hint: 'Max 60 characters.' }
+      - label: Tagline
+        name: tagline
+        widget: string
+        hint: 'One line under the title. 20-120 characters.'
+      - label: Category
+        name: category
+        widget: select
+        options:
+          - { label: 'Software & Web Applications', value: software }
+          - { label: '3D Product Design & Renders', value: product-3d }
+          - { label: 'Interactive Demos & Motion', value: interactive }
+      - label: Role
+        name: role
+        widget: string
+        hint: 'Precise ownership. Say what you actually did.'
+      - { label: Date, name: date, widget: datetime, format: 'YYYY-MM-DD', time_format: false }
+
+      - label: Published
+        name: published
+        widget: boolean
+        default: false
+        hint: >-
+          Off = draft: visible locally, never deployed. Turning this on requires
+          metrics, a pipeline diagram, an engineering challenge, and a tech stack,
+          or the build will fail.
+
+      - { label: Order, name: order, widget: number, required: false, value_type: int }
+      - { label: Live URL, name: live_url, widget: string, required: false }
+      - { label: Repo URL, name: repo_url, widget: string, required: false }
+
+      # --- Tier 1 preview: committed to the repo ---
+      - label: Featured preview
+        name: featured_preview
+        widget: object
+        fields:
+          - label: Kind
+            name: kind
+            widget: select
+            default: image
+            options: [image, video]
+            hint: 'Use "image" for renders and stills. "video" needs a <5 MB loop in /public/media.'
+          - label: Image
+            name: src
+            widget: image
+            required: false
+            hint: 'For kind=image. Any size — Astro generates AVIF derivatives at build.'
+          - label: Alt text
+            name: alt
+            widget: string
+            hint: 'Describe the image. Minimum 10 characters.'
+          - { label: 'Poster (video only)', name: poster, widget: string, required: false }
+          - { label: 'WebM path (video only)', name: webm, widget: string, required: false }
+          - { label: 'MP4 path (video only)', name: mp4, widget: string, required: false }
+          - { label: 'Duration s (video only)', name: duration_s, widget: number, required: false }
+          - { label: 'Bytes (video only)', name: bytes, widget: number, required: false, value_type: int }
+          - { label: 'Width (video only)', name: width, widget: number, required: false, value_type: int }
+          - { label: 'Height (video only)', name: height, widget: number, required: false, value_type: int }
+
+      - label: Gallery
+        name: gallery
+        widget: list
+        required: false
+        fields:
+          - { label: Image, name: src, widget: image }
+          - { label: Caption, name: caption, widget: string }
+
+      # --- Tier 2: never in git. Upload to Vimeo/YouTube, paste the ID. ---
+      - label: Deep-dive media
+        name: deep_dive_media
+        widget: list
+        required: false
+        typeKey: kind
+        types:
+          - label: Vimeo
+            name: vimeo
+            widget: object
+            fields:
+              - { label: Video ID, name: id, widget: string }
+              - { label: Caption, name: caption, widget: string }
+              - { label: 'Hash (unlisted videos)', name: hash, widget: string, required: false }
+          - label: YouTube
+            name: youtube
+            widget: object
+            fields:
+              - { label: Video ID, name: id, widget: string }
+              - { label: Caption, name: caption, widget: string }
+          - label: 'Cloudflare R2'
+            name: r2
+            widget: object
+            fields:
+              - { label: URL, name: src, widget: string }
+              - { label: Caption, name: caption, widget: string }
+              - { label: Poster URL, name: poster, widget: string, required: false }
+
+      - label: Tech stack
+        name: tech_stack
+        widget: object
+        collapsed: false
+        fields:
+          - { label: 'CAD / 3D', name: cad_3d, widget: list, required: false }
+          - { label: 'Frontend / Logic', name: frontend_logic, widget: list, required: false }
+          - { label: 'Motion / Compositing', name: motion_compositing, widget: list, required: false }
+          - { label: 'AI Orchestration / LLMs', name: ai_orchestration, widget: list, required: false }
+          - { label: Infrastructure, name: infrastructure, widget: list, required: false }
+
+      - label: LLM orchestration
+        name: llm_orchestration
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { label: Summary, name: summary, widget: text, hint: 'What the model system was responsible for. 20-320 chars.' }
+          - { label: Models, name: models, widget: list, required: false }
+          - label: Patterns
+            name: patterns
+            widget: select
+            multiple: true
+            options:
+              - mcp-server
+              - agent-workflow
+              - api-pipeline
+              - script-generation
+              - structured-extraction
+              - eval-harness
+              - rag
+              - batch-inference
+          - label: Autonomy
+            name: autonomy
+            widget: select
+            options: [assistive, semi-autonomous, autonomous]
+          - { label: Human in the loop, name: human_in_the_loop, widget: text, required: false }
+
+      - label: Pipeline diagram
+        name: pipeline_diagram
+        widget: object
+        required: false
+        fields:
+          - { label: Title, name: title, widget: string }
+          - label: Kind
+            name: kind
+            widget: select
+            options: [system-architecture, production-pipeline, data-flow, state-machine]
+          - { label: Caption, name: caption, widget: text, hint: 'Minimum 20 characters.' }
+
+      - label: Engineering challenge
+        name: engineering_challenge
+        widget: object
+        required: false
+        fields:
+          - { label: Constraint, name: constraint, widget: text, hint: 'The bottleneck, with the number that made it one. 40-320 chars.' }
+          - { label: Resolution, name: resolution, widget: text, hint: 'What you changed and why it worked. 40-480 chars.' }
+
+      - label: Metrics
+        name: metrics
+        widget: list
+        required: false
+        fields:
+          - { label: Label, name: label, widget: string }
+          - { label: Value, name: value, widget: string }
+          - { label: Baseline, name: baseline, widget: string, required: false }
+          - { label: Delta, name: delta, widget: string, required: false }
+          - { label: How measured, name: method, widget: text, required: false }
+
+      - label: Case study
+        name: body
+        widget: markdown
+        hint: >-
+          The narrative. Put the Mermaid diagram here in a ```mermaid fence —
+          it is rendered to static SVG at build time.
