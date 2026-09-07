@@ -103,8 +103,9 @@ collections:
             name: alt
             widget: string
             hint: >-
-              Describe what is actually in the frame, for screen readers and for
-              anyone whose image fails to load. Minimum 10 characters.
+              Describe what is actually in the frame -- this is what screen-reader
+              users get instead of the image. "N/A" or placeholder text will fail
+              the build when you publish.
 
       - label: Gallery
         name: gallery
@@ -146,6 +147,11 @@ collections:
         name: tech_stack
         widget: object
         collapsed: false
+        hint: >-
+          TOOL NAMES ONLY, one per row -- "After Effects", not "Motion graphics
+          created in After Effects". These render as small chips beside the
+          project, so a sentence overflows them. Describe the process in the
+          case study body or the pipeline diagram instead.
         fields:
           - { label: 'Design / Preproduction', name: design_preproduction, widget: list, required: false }
           - { label: 'CAD / 3D', name: cad_3d, widget: list, required: false }

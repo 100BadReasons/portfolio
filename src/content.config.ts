@@ -234,6 +234,16 @@ const work = defineCollection({
           'Published projects must name at least one tool.',
         );
 
+        // Alt text is the one field where a placeholder does real harm: it is
+        // what screen-reader users get instead of the image. "N/A XXXXXXXXXX"
+        // clears the 10-character minimum, so check the shape, not the length.
+        const alt = p.featured_preview.alt ?? '';
+        require(
+          !/^\s*(n\/?a|none|tbd)\b/i.test(alt) && !/x{4,}/i.test(alt),
+          'featured_preview',
+          'featured_preview.alt looks like a placeholder. Describe what is in the frame.',
+        );
+
         // Catches template text that survived an edit.
         const leftovers = JSON.stringify(p).match(/TODO|Placeholder|placeholder/g);
         require(!leftovers, 'title', `Published entry still contains ${leftovers?.length ?? 0} TODO/placeholder marker(s).`);

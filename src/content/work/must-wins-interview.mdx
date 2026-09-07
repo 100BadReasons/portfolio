@@ -1,46 +1,80 @@
 ---
 title: Must Wins Interview
-tagline: An interview with IBM VP on 2026 Strategy
+tagline: An executive interview on IBM's 2026 client strategy, with an animated architecture companion.
 category: content-creation
-role: Director & Video Editor
+role: Director & Video Editor — interview, motion graphics, edit
 date: 2026-03-30
-published: false
-order: null
-live_url: https://youtu.be/eDFnZRT1OUg?si=y1lFOdeVdpUuCkXP
-repo_url: ''
+published: false   # blocked on: metrics + engineering_challenge
+
 featured_preview:
   kind: image
   src: ../../assets/work/IMG_2974.jpeg
-  alt: N/A XXXXXXXXXXX
-gallery: []
-deep_dive_media: []
+  alt: >-
+    Opening title card from the interview: an IBM executive seated in a grey
+    armchair in a bright office, holding a coffee cup, with overlaid text
+    introducing a conversation about client strategy.
+
+deep_dive_media:
+  - kind: youtube
+    id: eDFnZRT1OUg
+    caption: The full interview with animated architecture segments.
+
 tech_stack:
   design_preproduction:
-    - Figma brainstorm
-  cad_3d: []
-  frontend_logic: []
+    - Figma
   motion_compositing:
-    - Live video recording with subject
-    - Architecture diagram created with Figma
-    - Migrate Figma frame to After Effects
-    - Used Figma MCP and Claude to build scrips to automate animations
-    - Convert motion graphics to MP4
-    - Final video editing and motion graphics incorporation in Premier Pro
-  ai_orchestration: []
-  infrastructure: []
-llm_orchestration: null
-pipeline_diagram: null
-engineering_challenge: null
-metrics: []
-og_image: ''
+    - After Effects
+    - Premiere Pro
+  ai_orchestration:
+    - Claude
+    - Figma MCP
+
+# This is the part of the project worth leading with, and it was buried in the
+# tech stack as a process step. Confirm the wording is accurate.
+llm_orchestration:
+  summary: >-
+    Claude drove the Figma MCP server to generate the scripts that animated the
+    architecture diagrams, instead of keyframing each transition by hand.
+  models:
+    - Claude
+  patterns:
+    - mcp-server
+    - script-generation
+  autonomy: assistive
+  human_in_the_loop: >-
+    Generated animation scripts were reviewed and adjusted in After Effects
+    before being cut into the final edit.
+
+pipeline_diagram:
+  title: Interview to broadcast pipeline
+  kind: production-pipeline
+  caption: >-
+    A live interview and an animated architecture explainer produced in
+    parallel, converging in the final edit.
+
+metrics: []            # TODO
+# engineering_challenge: TODO
 ---
 
-The mission was to capture leadership articulating why the Must Wins strategy is critical for 2026, increase executive visibility across IBM, and translate high-level business drivers into practical sales inspiration.
+The mission was to capture leadership articulating why the Must Wins strategy
+is critical for 2026, increase executive visibility across IBM, and translate
+high-level business drivers into practical sales inspiration.
 
- **Executive Storytelling:** Interviewed leadership using structured questions to break down client cost pressures, the end of "big bang" modernizations, and the shift toward incremental business value.
+- **Executive storytelling:** Interviewed leadership using structured questions to break down client cost pressures, the end of "big bang" modernizations, and the shift toward incremental business value.
+- **Interactive architecture hub:** Built a companion landing page that visually maps the full client journey alongside the supporting technology architecture.
+- **Applied use cases:** Grounded the strategy in concrete scenarios — such as real-time banking offers — to show how targeted modernization directly unlocks new lines of business in Financial Services.
 
- **Interactive Architecture Hub:** Built a companion landing page that visually maps the full client journey alongside the supporting technology architecture.
+**Core objective:** Bridge the gap between leadership strategy and technical
+execution, giving teams a tangible blueprint to drive pipeline and revenue.
 
- **Applied Use Cases:** Grounded the strategy in concrete scenarios—such as real-time banking offers—to show how targeted modernization directly unlocks new lines of business in Financial Services.
+## Production pipeline
 
- **Core Objective:** Bridge the gap between leadership strategy and technical execution, giving teams a tangible blueprint to drive pipeline and revenue.
+```mermaid
+flowchart LR
+  A[Structured interview questions] --> B[Live recording with subject]
+  B --> F[Final edit in Premiere Pro]
+  C[Architecture diagram in Figma] --> D[Figma MCP + Claude generate scripts]
+  D --> E[Animate in After Effects]
+  E --> F
+  F --> G[Published interview]
+```
