@@ -79,8 +79,21 @@ ffmpeg -nostdin -v error -y -i "$TMP/poster-src.png" -frames:v 1 "$OUT/poster.av
 # Social card. Separate from the video poster because Slack, iMessage and X
 # still handle AVIF poorly, and a blank unfurl is worse than a larger file.
 mkdir -p public/og
-ffmpeg -nostdin -v error -y -i "$TMP/poster-src.png" \
-  -vf "scale=1200:-2,crop=1200:628" -frames:v 1 -q:v 4 "public/og/$SLUG.jpg"
+# Social cards are 1.91:1. Cropping a normal frame to that is fine, but cropping
+# an ultra-wide frame throws away most of the composition -- so above 2.5:1 the
+# frame is letterboxed instead, showing the whole thing smaller rather than a
+# narrow slice of it.
+SRCW=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nk=1:nw=1 "$TMP/poster-src.png")
+SRCH=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nk=1:nw=1 "$TMP/poster-src.png")
+if [ "$(echo "$SRCW / $SRCH > 2.5" | bc -l)" = "1" ]; then
+  echo "  ultra-wide source -> letterboxing the social card instead of cropping"
+  ffmpeg -nostdin -v error -y -i "$TMP/poster-src.png" \
+    -vf "scale=1200:628:force_original_aspect_ratio=decrease,pad=1200:628:(ow-iw)/2:(oh-ih)/2:color=black" \
+    -frames:v 1 -q:v 4 "public/og/$SLUG.jpg"
+else
+  ffmpeg -nostdin -v error -y -i "$TMP/poster-src.png" \
+    -vf "scale=1200:-2,crop=1200:628" -frames:v 1 -q:v 4 "public/og/$SLUG.jpg"
+fi
 
 W=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nk=1:nw=1 "$OUT/preview.mp4")
 H=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nk=1:nw=1 "$OUT/preview.mp4")

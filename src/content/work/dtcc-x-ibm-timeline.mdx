@@ -1,37 +1,58 @@
 ---
 title: DTCC x IBM Timeline
-tagline: The technology adoption of the Depository Trust Clearing Corporation’s
+tagline: A 40ft video wall charting DTCC's 100-year history of technological advancement.
 category: content-creation
 role: Director & Video Editor
 date: 2026-05-25
-published: false
-order: null
-live_url: https://youtu.be/tJIg5_Cf9qI?si=MIgvjn8-tfpyEbtt
-repo_url: ''
+published: false   # blocked on: metrics + engineering_challenge
+
 featured_preview:
-  kind: image
-  src: ../../assets/work/IMG_2984.jpeg
-  alt: N/A XXXXXXXXX
-gallery: []
-deep_dive_media: []
+  kind: video
+  poster: /media/dtcc-x-ibm-timeline/poster.avif
+  webm: /media/dtcc-x-ibm-timeline/preview.webm
+  mp4: /media/dtcc-x-ibm-timeline/preview.mp4
+  duration_s: 3.6
+  bytes: 119800
+  width: 1280
+  height: 240
+  alt: >-
+    A six-frame cover sampled across the video wall film, keeping its native
+    ultra-wide proportions: an architecture diagram with presenters, the
+    partnership timeline of milestone cards, a data visualisation, and a
+    scannable deep-dive panel.
+og_image: /og/dtcc-x-ibm-timeline.jpg
+
+deep_dive_media:
+  # Self-hosted rather than YouTube. The source is 11520x2160 -- the native
+  # resolution of the 40ft wall, three 4K panels wide. Any 16:9 player
+  # letterboxes that to a third of its height and the on-screen text with it.
+  - kind: local
+    src: /media/dtcc-x-ibm-timeline/timeline.mp4
+    poster: /media/dtcc-x-ibm-timeline/poster.avif
+    caption: The full 6:38 wall film, at its native 5.33:1.
+    width: 2560
+    height: 480
+    rotate_hint: true
+
 tech_stack:
   design_preproduction:
     - Figma
-    - Internal Video Archives
-  cad_3d: []
-  frontend_logic: []
+    - Internal video archives
   motion_compositing:
-    - Adobe Stock
-    - Firefly
     - After Effects
     - Premiere Pro
-  ai_orchestration: []
-  infrastructure: []
-llm_orchestration: null
-pipeline_diagram: null
-engineering_challenge: null
-metrics: []
-og_image: ''
+    - Adobe Stock
+    - Firefly
+
+pipeline_diagram:
+  title: Video wall production pipeline
+  kind: production-pipeline
+  caption: >-
+    Archival research and design through to an 11520x2160 master mapped across
+    three 4K panels, with interactive pillar builds running in parallel.
+
+metrics: []                # TODO
+# engineering_challenge:   TODO
 ---
 
 The mission was to activate IBM’s NYC Innovation Studio for an executive visit with the Depository Trust & Clearing Corporation (DTCC), transforming the 40ft video wall and interactive pillars into a bespoke showcase honoring their centennial milestone alongside modern IBM technology.
@@ -43,3 +64,16 @@ The mission was to activate IBM’s NYC Innovation Studio for an executive visit
  **Custom Pillar Experiences:** Built DTCC-branded interactive demos across four touch-screen pillars to provide hands-on engagement with IBM Bob, watsonx Orchestrate, IBM Z infrastructure, and Project Mythos.
 
  **Core Objective:** Deliver a high-touch, immersive executive briefing that bridged commemorative heritage storytelling with tangible, interactive proof points across the IBM portfolio.
+
+## Production pipeline
+
+```mermaid
+flowchart LR
+  A[Archival research] --> B[Design in Figma]
+  B --> C[Motion graphics in After Effects]
+  D[Adobe Stock + Firefly assets] --> C
+  C --> E[Assemble in Premiere Pro]
+  E --> F[11520x2160 master]
+  F --> G[40ft wall, three 4K panels]
+  H[Interactive pillar demos] --> G
+```
