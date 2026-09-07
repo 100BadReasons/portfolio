@@ -1,32 +1,133 @@
 ---
 title: AI Designer Studio
-tagline: Improve your editing workflow using automation
+tagline: A directory and five shipped tools that move work between Figma, PowerPoint, and Premiere.
 category: software
-role: Full Stack Dev & Designer
+role: Full Stack Dev & Designer — architecture, implementation, and the Carbon UI
 date: 2026-07-15
-published: false
-order: null
-live_url: https://youtu.be/xpN_dx8sa_Q?si=X7GrgpuIOFZzefYg
-repo_url: ''
+published: false   # confirm the LLM section before publishing
+
 featured_preview:
   kind: image
-  src: ../../assets/work/IMG_3008.jpeg
-  alt: N/A XXXXXXXX
-gallery: []
-deep_dive_media: []
+  src: ../../assets/work/ai-designer-studio-directory.jpeg
+  alt: >-
+    The AI Designer Studio directory in a dark Carbon theme, showing tag filters
+    and cards for five tools — Deck Restyler, PDF to Figma, Figma to PowerPoint,
+    PPTX Studio and AutoEdit Studio — with an onboarding tour step open.
+
+deep_dive_media:
+  - kind: youtube
+    id: xpN_dx8sa_Q
+    caption: Walkthrough of the directory and the tools it catalogues.
+
 tech_stack:
-  design_preproduction: []
-  cad_3d: []
+  design_preproduction:
+    - Figma
+    - Carbon Design System
   frontend_logic:
+    - TypeScript
+    - React
+    - Vite
+    - pdfjs-dist
+    - pptxgenjs
+    - JSZip
+  motion_compositing:
+    - Premiere Pro CEP
+    - ffmpeg
+  ai_orchestration:
     - Claude
-  motion_compositing: []
-  ai_orchestration: []
-  infrastructure: []
-llm_orchestration: null
-pipeline_diagram: null
-engineering_challenge: null
-metrics: []
-og_image: ''
+    - Whisper
+  infrastructure:
+    - Express
+
+llm_orchestration:
+  summary: >-
+    Claude was the build partner across the suite, drafting and iterating on
+    implementation while architecture and review stayed with the author; Whisper
+    runs locally inside AutoEdit Studio to drive silence-aware rough cuts.
+  models:
+    - Claude
+    - Whisper
+  patterns:
+    - agent-workflow
+    - script-generation
+    - batch-inference
+  autonomy: assistive
+  human_in_the_loop: >-
+    Every change was reviewed and run before landing. Whisper transcription
+    executes entirely on the editor's own machine — no media leaves it.
+
+pipeline_diagram:
+  title: How the five tools relate
+  kind: system-architecture
+  caption: >-
+    One PDF-parsing core, reused in four directions: into Figma, back out to
+    PowerPoint, and lifted out of Figma entirely into a standalone web app.
+
+engineering_challenge:
+  constraint: >-
+    A Figma plugin runs split across two sandboxes. Only the main thread can
+    touch the figma.* API; only the UI iframe has Blob and DOM. Every tool has
+    to cross that boundary, and which side does the heavy lifting inverts
+    depending on which way the content is moving.
+  resolution: >-
+    PDF to Figma parses in the iframe, because pdfjs needs DOM, then posts
+    geometry across to the main thread to build layers. Figma to PowerPoint
+    inverts it: the main thread walks the node tree, the iframe assembles the
+    .pptx. Deck Restyler forked the import half and added Style Kit extraction
+    on top, and PPTX Studio lifted that same core out of Figma altogether into
+    a standalone browser app.
+
+metrics:
+  - label: Tools shipped
+    value: "5"
+    method: Three Figma plugins, one web app, one Premiere Pro panel.
+  - label: Published to Figma Community
+    value: "3"
+  - label: TypeScript written
+    value: ~27,900 lines
+    method: Source across all five repos, excluding node_modules and build output.
 ---
 
-Claude
+AI Designer Studio is the front door to a set of internal tools for a design
+team: deck conversion, restyling, and video automation across Figma, PowerPoint
+and Premiere Pro. The directory itself is a Vite + React app on the Carbon
+Design System, and it does one thing carefully — it tells the truth about what
+exists and what state each tool is in.
+
+Versions are not hand-maintained. A sync script reads each tool's own source of
+truth before every dev run and build: `package.json` for the four Figma and web
+tools, and `CSXS/manifest.xml` for the Premiere panel, because CEP extensions
+don't use `package.json` at all. A repo that isn't checked out next to the
+directory is a warning rather than a failure — the last generated value stands.
+
+## The tools
+
+- **PDF to Figma** — parses an uploaded PDF entirely in the browser and rebuilds each page as an editable Figma frame: separate text, image, and true vector layers at their original coordinates.
+- **Deck Restyler** — forked from PDF to Figma. Extracts a reusable Style Kit (colors, fonts, logo) from a Design Deck and remaps a Content Deck onto it. v1 is restyle-only: every element keeps its original position and size.
+- **Figma to PowerPoint** — the mirror image. Selected frames export to an editable `.pptx` where text and simple shapes are real, selectable PowerPoint objects rather than a flattened screenshot.
+- **PPTX Studio** — the same conversion core, lifted out of Figma into a fully client-side web app. Uploaded decks never leave the browser.
+- **AutoEdit Studio** — a Premiere Pro panel for automated rough cuts, backed by a local Express and ffmpeg service running Whisper transcription on the editor's own machine.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  PDF[PDF / PPTX source] --> CORE[Shared parsing core<br/>pdfjs-dist]
+  CORE --> P1[PDF to Figma<br/>plugin]
+  CORE --> P2[Deck Restyler<br/>plugin]
+  CORE --> W[PPTX Studio<br/>browser app]
+  P1 --> FIG[(Editable Figma layers)]
+  P2 --> FIG
+  FIG --> P3[Figma to PowerPoint<br/>plugin]
+  P3 --> PPT[(Editable .pptx)]
+  W --> PPT
+  MEDIA[Footage] --> AE[AutoEdit Studio<br/>Premiere panel]
+  AE --> CUT[(Rough cut + captions)]
+```
+
+## What I would change
+
+The four Figma and web tools have no git history, no tags, and no changelog —
+their `package.json` has read `1.0.0` since creation. The version sync script
+is honest about this, but the numbers only start meaning something once those
+repos actually version themselves.
