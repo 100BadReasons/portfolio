@@ -213,7 +213,14 @@ const work = defineCollection({
           if (!cond) ctx.addIssue({ code: 'custom', path: [path], message });
         };
 
-        require(!!(p.live_url || p.repo_url), 'live_url', 'Published projects need a live_url or repo_url.');
+        // A film or motion piece legitimately has no live site and no repo --
+        // the deliverable IS the video, which lives in deep_dive_media. The
+        // rule is "the work must be reachable somehow", not "must ship code".
+        require(
+          !!(p.live_url || p.repo_url || p.deep_dive_media.length > 0),
+          'live_url',
+          'Published projects need a live_url, a repo_url, or at least one deep_dive_media entry.',
+        );
         require(p.metrics.length > 0, 'metrics', 'Published projects need at least one metric.');
         require(!!p.pipeline_diagram, 'pipeline_diagram', 'Published projects need a pipeline diagram.');
         require(!!p.engineering_challenge, 'engineering_challenge', 'Published projects need an engineering_challenge.');
