@@ -30,6 +30,14 @@ const preview = data.featured_preview;
  *
  * withBase() is idempotent, so handing it an already-prefixed URL is safe.
  */
+// Same clamp as the feed card, so the hero on an ultra-wide project is not a
+// 128px sliver at the top of the page.
+const naturalAspect =
+  preview.kind === 'image'
+    ? preview.src.width / preview.src.height
+    : preview.width / preview.height;
+const heroAspect = Math.min(Math.max(naturalAspect, 4 / 5), 16 / 9);
+
 const ogFallback =
   preview.kind === 'image'
     ? (await getImage({
@@ -74,7 +82,7 @@ const stackGroups = [
       {!data.published && <span class="draft">Draft</span>}
     </header>
 
-    <div class="hero">
+    <div class="hero" style={`--hero-ar: ${heroAspect}`}>
       {preview.kind === 'image' ? (
         <Image
           src={preview.src}
@@ -258,7 +266,17 @@ const stackGroups = [
     padding: 0.15rem 0.4rem; border-radius: 3px;
   }
 
-  .hero { background: var(--surface); }
+  .hero {
+    aspect-ratio: var(--hero-ar);
+    background: var(--bg);
+  }
+  .hero :global(img),
+  .hero video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
 
   .col { padding: 1.5rem 1rem 0; display: grid; gap: 1.75rem; }
   h1 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.25rem); font-weight: 600; letter-spacing: -0.03em; }

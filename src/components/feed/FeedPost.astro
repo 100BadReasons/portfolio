@@ -15,6 +15,21 @@ const posted = data.date.toLocaleDateString('en-US', {
   month: 'long', day: 'numeric', year: 'numeric',
 });
 
+/**
+ * Card aspect ratio, clamped to Instagram's own range (4:5 portrait to 16:9).
+ *
+ * Covers keep their true proportions -- object-fit is `contain`, so nothing is
+ * cropped -- but the CARD stops matching them past those bounds. Without this a
+ * 5.33:1 ultra-wide cover renders 70px tall on a phone next to 210px for
+ * everything else, and the feed loses its rhythm. The letterbox bars are the
+ * page background, so they are invisible rather than grey.
+ */
+const natural =
+  preview.kind === 'image'
+    ? preview.src.width / preview.src.height
+    : preview.width / preview.height;
+const cardAspect = Math.min(Math.max(natural, 4 / 5), 16 / 9);
+
 // Flatten the categorised stack into the "tagged accounts" line.
 const tools = Object.values(data.tech_stack).flat().slice(0, 4);
 ---
@@ -28,7 +43,7 @@ const tools = Object.values(data.tech_stack).flat().slice(0, 4);
     {!data.published && <span class="draft">Draft</span>}
   </header>
 
-  <a class="media" href={href} aria-label={`Open case study: ${data.title}`}>
+  <a class="media" href={href} style={`--card-ar: ${cardAspect}`} aria-label={`Open case study: ${data.title}`}>
     {preview.kind === 'image' ? (
       <Image
         src={preview.src}
@@ -107,10 +122,19 @@ const tools = Object.values(data.tech_stack).flat().slice(0, 4);
     padding: 0.15rem 0.4rem; border-radius: 3px;
   }
 
-  /* No cropping: media keeps its true aspect ratio. */
-  .media { display: block; background: var(--surface); }
+  /* The card holds a consistent shape; the media inside is never cropped. */
+  .media {
+    display: block;
+    aspect-ratio: var(--card-ar);
+    background: var(--bg);
+  }
   .media :global(img),
-  .media video { width: 100%; height: auto; display: block; }
+  .media video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
 
   .body { padding: 0.85rem 1rem 1rem; display: grid; gap: 0.5rem; }
   .caption { margin: 0; font-size: 0.875rem; }
