@@ -3,6 +3,24 @@ import { z } from 'zod';
 import { glob } from 'astro/loaders';
 import { CATEGORY_IDS } from './lib/categories';
 
+/**
+ * Treat empty string and null as "absent".
+ *
+ * Sveltia writes `''` for untouched optional strings and `null` for untouched
+ * optional objects and numbers, rather than omitting the key. Plain `.optional()`
+ * rejects both, so a project saved from the CMS failed validation on fields the
+ * author had deliberately left blank. Wrap every optional field in this.
+ */
+const blankable = <T extends z.ZodType>(schema: T) =>
+  z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    schema.optional(),
+  );
+
+/** Same idea for list fields, where the CMS may write null instead of []. */
+const listOf = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((v) => (v === null || v === undefined ? [] : v), z.array(schema));
+
 /* ------------------------------------------------------------------ *
  * Draft vs. published
  *
@@ -41,11 +59,11 @@ const deepDiveMedia = z.discriminatedUnion('kind', [
 /** Tech stack, categorised by function. */
 const techStack = z
   .object({
-    cad_3d: z.array(z.string()).default([]),
-    frontend_logic: z.array(z.string()).default([]),
-    motion_compositing: z.array(z.string()).default([]),
-    ai_orchestration: z.array(z.string()).default([]),
-    infrastructure: z.array(z.string()).default([]),
+    cad_3d: listOf(z.string()),
+    frontend_logic: listOf(z.string()),
+    motion_compositing: listOf(z.string()),
+    ai_orchestration: listOf(z.string()),
+    infrastructure: listOf(z.string()),
   })
   .strict();
 
@@ -148,7 +166,7 @@ const work = defineCollection({
         src: image(),
         alt: z.string().min(10),
         /** Optional: a still that animates on hover, without a video encode. */
-        hover_src: image().optional(),
+        hover_src: blankable(image()),
       })
       .strict();
 
@@ -162,25 +180,25 @@ const work = defineCollection({
         date: z.coerce.date(),
         /** false = draft: visible in `astro dev`, excluded from production. */
         published: z.boolean().default(false),
-        order: z.number().int().optional(),
+        order: blankable(z.number().int()),
 
-        live_url: z.url().optional(),
-        repo_url: z.url().optional(),
+        live_url: blankable(z.url()),
+        repo_url: blankable(z.url()),
 
         featured_preview: z.discriminatedUnion('kind', [previewVideo, previewImage]),
         /** Additional stills — contact sheets, alternate angles, detail crops. */
         gallery: z
           .array(z.object({ src: image(), caption: z.string() }).strict())
           .default([]),
-        deep_dive_media: z.array(deepDiveMedia).default([]),
+        deep_dive_media: listOf(deepDiveMedia),
 
         tech_stack: techStack,
-        llm_orchestration: llmOrchestration.optional(),
-        pipeline_diagram: pipelineDiagram.optional(),
-        engineering_challenge: engineeringChallenge.optional(),
-        metrics: z.array(metric).default([]),
+        llm_orchestration: blankable(llmOrchestration),
+        pipeline_diagram: blankable(pipelineDiagram),
+        engineering_challenge: blankable(engineeringChallenge),
+        metrics: listOf(metric),
 
-        og_image: z.string().startsWith('/og/').optional(),
+        og_image: blankable(z.string().startsWith('/og/')),
       })
       .strict()
       /**

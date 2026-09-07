@@ -1,54 +1,68 @@
 ---
 title: Mastercard Agentic Concierge
-tagline: A high fidelity demo created as an advertisement for and Agentic powered app experience for Mastercard.
+tagline: A concept film pitching an agentic assistant for Mastercard's Priceless partnerships.
 category: interactive
-role: Content Creator
+role: Content Creator — concept, motion graphics, chat simulation, edit
 date: 2026-04-15
-published: true
-order: null
-live_url: https://youtu.be/ORKEwZBO4IQ?si=o7KHpSG_VJxnoblD
-repo_url: ''
+published: false   # blocked on: metrics + engineering_challenge
+
 featured_preview:
-  kind: video
+  kind: image
   src: ../../assets/work/IMG_2970.jpeg
-  alt: N/A XXXXXXXXXX
-  poster: ''
-  webm: ''
-  mp4: ''
-  duration_s: null
-  bytes: null
-  width: null
-  height: null
-gallery: []
-deep_dive_media: []
+  alt: >-
+    A still from the concept film: a soccer ball marked with the Mastercard logo
+    hitting the back of the net, overlaid with a chat exchange in which the
+    assistant reserves a Liverpool home kit at a no-wait merch booth.
+
+deep_dive_media:
+  - kind: youtube
+    id: ORKEwZBO4IQ
+    caption: The finished 30-40 second concept film.
+
 tech_stack:
-  cad_3d: []
   frontend_logic:
-    - Brainstorm in Figma
-    - Collect Copyright Free video content
-    - Videos modified using Nano Banana
-    - Motion Graphics created in After Effects
-    - MOGRT templates for chat simulation
-    - Video montage created in Premiere Pro
-    - MOGRT overlayed and Apple Glass effect added
-  motion_compositing: []
-  ai_orchestration: []
-  infrastructure: []
-llm_orchestration: null
-pipeline_diagram: null
-engineering_challenge: null
-metrics: []
-og_image: ''
+    - Figma
+  motion_compositing:
+    - After Effects
+    - Premiere Pro
+    - MOGRT templates
+  ai_orchestration:
+    - Nano Banana
+
+pipeline_diagram:
+  title: Concept film production pipeline
+  kind: production-pipeline
+  caption: >-
+    Storyboard through delivery, with the chat simulation built as reusable
+    MOGRT templates so dialogue could be revised without re-animating.
+
+metrics: []            # TODO — see below
+# engineering_challenge:  TODO — see below
 ---
 
-The mission was to build a 30–40 second concept video showing how watsonx Orchestrate could transform Mastercard’s underperforming concierge app into a proactive, agentic assistant tied to their "Priceless" partnerships.
+The mission was to build a 30–40 second concept video showing how watsonx
+Orchestrate could transform Mastercard's concierge app into a proactive,
+agentic assistant tied to their "Priceless" partnerships.
 
- **Format:** A 60/40 split between real-world cardholder perks and mobile UI chat simulations.
+**Format:** A 60/40 split between real-world cardholder perks and mobile UI
+chat simulations.
 
- **Sports (Liverpool FC):** Showcases exclusive access by securing after-hours player Q&A passes.
+- **Sports (Liverpool FC):** Showcases exclusive access by securing after-hours player Q&A passes.
+- **Music (Live Nation):** Highlights automated ticket-hunting and priority presale booking based on user preferences.
+- **Gaming (LoL World Finals):** Illustrates an immediate jump from home to live event perks through interactive, transparent chat pop-ups.
 
- **Music (Live Nation):** Highlights automated ticket-hunting and priority presale booking based on user preferences.
+**Key objective:** Prove watsonx Orchestrate's mobile agentic capabilities to
+drive cardholder engagement and partner revenue.
 
- **Gaming (LoL World Finals):** Illustrates an immediate jump from home to live event perks through interactive, transparent chat pop-ups.
+## Production pipeline
 
- **Key Objective:** Prove watsonx Orchestrate’s mobile agentic capabilities to drive cardholder engagement and partner revenue.
+```mermaid
+flowchart LR
+  A[Storyboard in Figma] --> B[Source copyright-free footage]
+  B --> C[Modify footage with Nano Banana]
+  C --> D[Motion graphics in After Effects]
+  D --> E[MOGRT templates for chat simulation]
+  E --> F[Montage in Premiere Pro]
+  F --> G[MOGRT overlay + Apple Glass effect]
+  G --> H[Final 30-40s cut]
+```

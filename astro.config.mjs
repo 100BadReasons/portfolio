@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import rehypeMermaid from 'rehype-mermaid';
 import { unified } from '@astrojs/markdown-remark';
+import rehypeWrapMermaid from './src/lib/rehype-wrap-mermaid.mjs';
 
 /**
  * Deploy target: GitHub Pages *project* repo.
@@ -82,6 +83,8 @@ export default defineConfig({
             },
           },
         ],
+        // Must run after rehype-mermaid: it wraps that plugin's output.
+        rehypeWrapMermaid,
       ],
     }),
   },

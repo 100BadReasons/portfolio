@@ -85,29 +85,25 @@ collections:
       - label: Featured preview
         name: featured_preview
         widget: object
+        collapsed: false
         fields:
-          - label: Kind
-            name: kind
-            widget: select
-            default: image
-            options: [image, video]
-            hint: 'Use "image" for renders and stills. "video" needs a <5 MB loop in /public/media.'
+          # Fixed to "image". Sveltia has no conditional fields, so a `kind`
+          # selector would show video inputs that cannot be filled correctly
+          # here: a tier-1 video preview needs encoded webm+mp4 in /public/media
+          # plus measured byte size and duration, which the CMS cannot produce.
+          # Use scripts/encode-preview.sh for video previews; the schema still
+          # accepts them when written by hand.
+          - { label: Kind, name: kind, widget: hidden, default: image }
           - label: Image
             name: src
             widget: image
-            required: false
-            hint: 'For kind=image. Any size — Astro generates AVIF derivatives at build.'
+            hint: 'Any size. Astro generates AVIF derivatives at build; the original is never served.'
           - label: Alt text
             name: alt
             widget: string
-            hint: 'Describe the image. Minimum 10 characters.'
-          - { label: 'Poster (video only)', name: poster, widget: string, required: false }
-          - { label: 'WebM path (video only)', name: webm, widget: string, required: false }
-          - { label: 'MP4 path (video only)', name: mp4, widget: string, required: false }
-          - { label: 'Duration s (video only)', name: duration_s, widget: number, required: false }
-          - { label: 'Bytes (video only)', name: bytes, widget: number, required: false, value_type: int }
-          - { label: 'Width (video only)', name: width, widget: number, required: false, value_type: int }
-          - { label: 'Height (video only)', name: height, widget: number, required: false, value_type: int }
+            hint: >-
+              Describe what is actually in the frame, for screen readers and for
+              anyone whose image fails to load. Minimum 10 characters.
 
       - label: Gallery
         name: gallery
