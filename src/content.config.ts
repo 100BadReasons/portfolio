@@ -205,7 +205,12 @@ const work = defineCollection({
         live_url: blankable(z.url()),
         repo_url: blankable(z.url()),
 
-        featured_preview: z.discriminatedUnion('kind', [previewVideo, previewImage]),
+        // Optional so a draft can exist before its media does -- the CMS can
+        // commit an entry whose image upload never completed. Required to
+        // publish, enforced in the gate below.
+        featured_preview: z
+          .discriminatedUnion('kind', [previewVideo, previewImage])
+          .optional(),
         /** Additional stills — contact sheets, alternate angles, detail crops. */
         gallery: z
           .array(z.object({ src: image(), caption: z.string() }).strict())
@@ -253,7 +258,9 @@ const work = defineCollection({
         // Alt text is the one field where a placeholder does real harm: it is
         // what screen-reader users get instead of the image. "N/A XXXXXXXXXX"
         // clears the 10-character minimum, so check the shape, not the length.
-        const alt = p.featured_preview.alt ?? '';
+        require(!!p.featured_preview, 'featured_preview', 'Published projects need a cover image or video.');
+
+        const alt = p.featured_preview?.alt ?? '';
         require(
           !/^\s*(n\/?a|none|tbd)\b/i.test(alt) && !/x{4,}/i.test(alt),
           'featured_preview',

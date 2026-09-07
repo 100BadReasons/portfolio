@@ -8,11 +8,12 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && npm run prune",
+    "build": "npm run check:media && astro build && npm run prune",
     "preview": "astro preview",
     "check": "astro check",
     "new": "node scripts/new-project.mjs",
-    "prune": "node scripts/prune-unreferenced-assets.mjs"
+    "prune": "node scripts/prune-unreferenced-assets.mjs",
+    "check:media": "node scripts/check-media.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.0",
