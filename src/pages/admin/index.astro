@@ -13,7 +13,18 @@
  *
  * config.yml stays in public/admin/ -- it is data the CMS fetches at runtime,
  * not a route, and the CMS looks for it next to this page.
+ *
+ * CACHE BUSTING: GitHub Pages serves config.yml with `cache-control: max-age=600`
+ * and Pages headers cannot be changed. So for ten minutes after every deploy the
+ * CMS keeps using the old config -- a newly added category or field simply is not
+ * there, with no error to explain why. The `cms-config-url` link lets us point
+ * Sveltia at a versioned URL that changes on every build, so a deploy always
+ * invalidates it. The file itself is ~9 KB, so refetching costs nothing.
  */
+import { withBase } from '../../lib/url';
+
+// Changes on every build, which is exactly the point.
+const configUrl = withBase(`/admin/config.yml?v=${Date.now().toString(36)}`);
 ---
 <html lang="en">
   <head>
@@ -22,6 +33,7 @@
     <!-- Keep the admin UI out of search results. -->
     <meta name="robots" content="noindex, nofollow" />
     <title>Portfolio CMS</title>
+    <link href={configUrl} type="text/yaml" rel="cms-config-url" />
   </head>
   <body>
     <script is:inline src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
