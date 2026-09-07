@@ -169,6 +169,24 @@ const stackGroups = [
         <Content />
       </div>
 
+      {data.gallery.length > 0 && (
+        <section class="gallery" aria-label="Photographs">
+          {data.gallery.map((g) => (
+            <figure>
+              <Image
+                src={g.src}
+                alt={g.caption}
+                widths={[640, 1280]}
+                sizes="(max-width: 720px) 92vw, 660px"
+                format="avif"
+                loading="lazy"
+              />
+              <figcaption>{g.caption}</figcaption>
+            </figure>
+          ))}
+        </section>
+      )}
+
       {data.deep_dive_media.length > 0 && (
         <section class="deep" aria-label="Deep dive media">
           <h2>Deep dive</h2>
@@ -323,6 +341,16 @@ const stackGroups = [
     display: block;
     margin: 0 auto;
   }
+
+  .gallery { display: grid; gap: 1.25rem; }
+  .gallery figure { margin: 0; display: grid; gap: 0.45rem; }
+  .gallery :global(img) {
+    width: 100%; height: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .gallery figcaption { font-size: 0.78rem; color: var(--text-dim); }
 
   .deep { display: grid; gap: 1.5rem; }
   .deep figure { margin: 0; display: grid; gap: 0.5rem; }
