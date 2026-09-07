@@ -21,7 +21,12 @@ export default defineConfig({
   integrations: [
     // The markdown config below applies to .mdx too.
     mdx(),
-    sitemap(),
+    // Keep the CMS out of the sitemap. It carries a noindex meta tag, but
+    // listing it here actively advertises the admin URL to crawlers -- a
+    // regression from moving it out of public/ into a page route.
+    sitemap({
+      filter: (page) => !page.includes('/admin'),
+    }),
   ],
 
   markdown: {
