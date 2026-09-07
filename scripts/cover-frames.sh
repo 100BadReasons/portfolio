@@ -48,6 +48,24 @@ if [ -d "$SRC" ]; then
 else
 
 DUR=$(ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$SRC")
+SW=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nk=1:nw=1 "$SRC")
+SH=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nk=1:nw=1 "$SRC")
+
+# An ultra-wide source makes an ultra-wide cover, and an ultra-wide cover makes
+# a feed card a few pixels tall next to everything else. Letterboxing it into a
+# 16:9 card is worse -- two thirds of the card ends up empty.
+#
+# So crop each frame to 16:9 at full source height, stepping the crop window
+# across the frame: frame 0 starts at the left edge, the last frame ends at the
+# right. The cover is card-shaped AND walks the whole width of the piece.
+PAN=0
+CROPW=0
+if [ "$(echo "$SW / $SH > 2.5" | bc -l)" = "1" ]; then
+  PAN=1
+  CROPW=$(echo "($SH * 16 / 9 + 0.5) / 1" | bc)
+  MAXX=$((SW - CROPW))
+  echo "  ultra-wide source ($SW x $SH) -> panning a ${CROPW}px 16:9 window across it"
+fi
 # Sample the middle 90% so titles and end cards do not dominate.
 START=$(echo "$DUR * 0.05" | bc -l)
 SPAN=$(echo "$DUR * 0.90" | bc -l)
@@ -55,8 +73,13 @@ SPAN=$(echo "$DUR * 0.90" | bc -l)
 echo "Source: ${DUR}s -> sampling $N frames across ${SPAN}s"
 for i in $(seq 0 $((N - 1))); do
   T=$(echo "$START + ($SPAN / $N) * $i" | bc -l)
-  ffmpeg -nostdin -v error -ss "$T" -i "$SRC" -frames:v 1 \
-    -vf "scale=1280:-2:flags=lanczos" "$TMP/$(printf '%02d' "$i").png"
+  if [ "$PAN" = "1" ]; then
+    X=$(echo "($MAXX * $i / ($N - 1) + 0.5) / 1" | bc)
+    VF="crop=${CROPW}:${SH}:${X}:0,scale=1280:-2:flags=lanczos"
+  else
+    VF="scale=1280:-2:flags=lanczos"
+  fi
+  ffmpeg -nostdin -v error -ss "$T" -i "$SRC" -frames:v 1 -vf "$VF" "$TMP/$(printf '%02d' "$i").png"
   printf '  frame %d at %.1fs\n' "$i" "$T"
 done
 fi
