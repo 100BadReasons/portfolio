@@ -135,6 +135,20 @@ collections:
             fields:
               - { label: Video ID, name: id, widget: string }
               - { label: Caption, name: caption, widget: string }
+          - label: 'Self-hosted (wide/ultra-wide film)'
+            name: local
+            widget: object
+            fields:
+              - { label: Path, name: src, widget: string, hint: 'e.g. /media/<slug>/film.mp4' }
+              - { label: Caption, name: caption, widget: string }
+              - { label: Width, name: width, widget: number, value_type: int }
+              - { label: Height, name: height, widget: number, value_type: int }
+              - { label: Poster path, name: poster, widget: string, required: false }
+              - label: Prompt phones to rotate
+                name: rotate_hint
+                widget: boolean
+                default: false
+                hint: 'Enable for very wide films — a phone in portrait shows them only a few pixels tall.'
           - label: 'Cloudflare R2'
             name: r2
             widget: object

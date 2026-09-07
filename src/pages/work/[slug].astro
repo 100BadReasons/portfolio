@@ -186,6 +186,26 @@ const stackGroups = [
                   title={m.caption} loading="lazy" allowfullscreen
                 ></iframe>
               )}
+              {m.kind === 'local' && (
+                <div class="wide" style={`--ar: ${m.width} / ${m.height}`}>
+                  {m.rotate_hint && (
+                    <p class="rotate" role="note">
+                      This film is {(m.width / m.height).toFixed(1)}:1 &mdash; rotate your
+                      phone to landscape to read it properly.
+                    </p>
+                  )}
+                  <video
+                    controls
+                    playsinline
+                    preload="metadata"
+                    poster={m.poster ? withBase(m.poster) : undefined}
+                    width={m.width}
+                    height={m.height}
+                  >
+                    <source src={withBase(m.src)} type="video/mp4" />
+                  </video>
+                </div>
+              )}
               {m.kind === 'r2' && (
                 <video controls playsinline preload="none" poster={m.poster}>
                   <source src={m.src} />
@@ -309,6 +329,33 @@ const stackGroups = [
   .deep iframe, .deep video {
     width: 100%; aspect-ratio: 16 / 9; border: 0;
     background: var(--surface); border-radius: var(--radius);
+  }
+
+  /* Ultra-wide film. Breaking out of the 680px text column is not cosmetic:
+     at 5.3:1 the column gives 128px of height, the full width gives 270px.
+     Capped at 92vw rather than 100vw so a vertical scrollbar cannot push the
+     page into horizontal overflow. */
+  .deep .wide {
+    width: min(1400px, 92vw);
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+  .deep .wide video {
+    /* Native aspect, so there is no letterboxing to shrink the text. */
+    aspect-ratio: var(--ar);
+    height: auto;
+  }
+  .rotate {
+    display: none;
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    border-left: 2px solid var(--accent);
+    padding-left: 0.6rem;
+  }
+  /* Only worth saying on a phone held upright. */
+  @media (max-width: 700px) and (orientation: portrait) {
+    .rotate { display: block; }
   }
   .deep figcaption { font-size: 0.8rem; color: var(--text-dim); }
 </style>

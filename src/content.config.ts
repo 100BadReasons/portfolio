@@ -48,6 +48,22 @@ const deepDiveMedia = z.discriminatedUnion('kind', [
   }),
   z.object({ kind: z.literal('vimeo'), id: z.string(), caption: z.string(), hash: z.string().optional() }),
   z.object({ kind: z.literal('youtube'), id: z.string(), caption: z.string() }),
+  /**
+   * Self-hosted in /public/media. Use when a platform player would ruin the
+   * piece -- an ultra-wide film letterboxed into a 16:9 frame loses most of its
+   * height, and the text with it. width/height are required so the player can
+   * be given the exact native aspect ratio and reserve space before load.
+   */
+  z.object({
+    kind: z.literal('local'),
+    src: z.string().startsWith('/media/'),
+    poster: z.string().startsWith('/media/').optional(),
+    caption: z.string(),
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+    /** Prompt phone users to rotate. Worth it above roughly 2.5:1. */
+    rotate_hint: z.boolean().default(false),
+  }),
   z.object({
     kind: z.literal('image-sequence'),
     src: z.url(),
