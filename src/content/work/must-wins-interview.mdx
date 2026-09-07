@@ -4,7 +4,7 @@ tagline: An executive interview on IBM's 2026 client strategy, with an animated 
 category: content-creation
 role: Director & Video Editor — interview, motion graphics, edit
 date: 2026-03-30
-published: false   # blocked on: metrics + engineering_challenge
+published: true
 
 featured_preview:
   kind: video
@@ -25,6 +25,9 @@ deep_dive_media:
   - kind: youtube
     id: eDFnZRT1OUg
     caption: The full interview with animated architecture segments.
+# No live_url. The companion architecture hub contains information that cannot
+# be shared publicly, so it is described here but never linked. A separate post
+# with a demo video will cover it, and this entry can link to that instead.
 
 tech_stack:
   design_preproduction:
@@ -59,8 +62,28 @@ pipeline_diagram:
     A live interview and an animated architecture explainer produced in
     parallel, converging in the final edit.
 
-metrics: []            # TODO
-# engineering_challenge: TODO
+engineering_challenge:
+  constraint: >-
+    The problem was creative rather than technical: how to make a 2026 strategy
+    land with colleagues who would scroll past another PowerPoint deck.
+  resolution: >-
+    Rebuilt the rollout as broadcast content -- an executive interview, animated
+    architecture explainers, and a companion landing site mapping the client
+    journey -- so the strategy arrived as something worth watching and arguing
+    with rather than another deck to skim.
+
+metrics:
+  - label: Editing time saved
+    value: 6 hours
+    method: >-
+      Claude generating animation scripts through the Figma MCP server, against
+      hand-keyframing the architecture diagram transitions.
+  - label: Internal views
+    value: "300"
+    method: IBM colleagues, with 40+ comments on the post.
+  - label: Turnaround
+    value: 3 weeks
+    method: Three 8-minute videos plus the companion landing site.
 ---
 
 The mission was to capture leadership articulating why the Must Wins strategy
