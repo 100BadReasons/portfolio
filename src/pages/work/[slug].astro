@@ -30,8 +30,12 @@ const preview = data.featured_preview;
  *
  * withBase() is idempotent, so handing it an already-prefixed URL is safe.
  */
-const ogFallback =
-  preview.kind === 'image'
+// `preview` is undefined only on a draft with no cover yet, which never
+// reaches a production build -- but dev renders drafts, so guard rather than
+// assert.
+const ogFallback = !preview
+  ? undefined
+  : preview.kind === 'image'
     ? (await getImage({
         src: preview.src,
         width: 1080,
@@ -74,6 +78,7 @@ const stackGroups = [
       {!data.published && <span class="draft">Draft</span>}
     </header>
 
+    {preview && (
     <div class="hero">
       {preview.kind === 'image' ? (
         <Image
@@ -102,6 +107,7 @@ const stackGroups = [
         </video>
       )}
     </div>
+    )}
 
     <div class="col">
       <h1>{data.title}</h1>
