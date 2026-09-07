@@ -47,7 +47,7 @@ if [ -d "$SRC" ]; then
   N=$i
 else
 
-DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$SRC")
+DUR=$(ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$SRC")
 # Sample the middle 90% so titles and end cards do not dominate.
 START=$(echo "$DUR * 0.05" | bc -l)
 SPAN=$(echo "$DUR * 0.90" | bc -l)
@@ -82,8 +82,8 @@ mkdir -p public/og
 ffmpeg -nostdin -v error -y -i "$TMP/poster-src.png" \
   -vf "scale=1200:-2,crop=1200:628" -frames:v 1 -q:v 4 "public/og/$SLUG.jpg"
 
-W=$(ffprobe -v error -select_streams v -show_entries stream=width -of csv=p=0 "$OUT/preview.mp4")
-H=$(ffprobe -v error -select_streams v -show_entries stream=height -of csv=p=0 "$OUT/preview.mp4")
+W=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nk=1:nw=1 "$OUT/preview.mp4")
+H=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nk=1:nw=1 "$OUT/preview.mp4")
 BW=$(stat -f%z "$OUT/preview.webm" 2>/dev/null || stat -c%s "$OUT/preview.webm")
 BM=$(stat -f%z "$OUT/preview.mp4"  2>/dev/null || stat -c%s "$OUT/preview.mp4")
 BYTES=$(( BW > BM ? BW : BM ))
