@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # Build an animated cover from N frames of a source video.
 #
-#   ./scripts/cover-frames.sh <source.mp4> <slug> [frames] [seconds-per-frame]
-#   ./scripts/cover-frames.sh ~/Movies/film.mp4 my-project 6 0.5
+#   ./scripts/cover-frames.sh <source.mp4|folder-of-stills> <slug> [frames] [hold]
+#   ./scripts/cover-frames.sh ~/Movies/film.mp4      my-project 6 0.5
+#   ./scripts/cover-frames.sh ~/Desktop/must-wins/   my-project 6 0.5
+#
+# The second form takes a FOLDER of stills instead of a video, for when the
+# master is not to hand -- pause the film at six moments, screenshot each, drop
+# them in a folder. Files are used in filename order, so name them 01..06.
 #
 # Frames are spaced EVENLY across the middle of the runtime, not chosen at
 # random. Random picks land on cuts, black frames and motion blur, and would
@@ -22,6 +27,26 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$OUT"
 
+if [ -d "$SRC" ]; then
+  # Folder-of-stills mode. No extraction needed; normalise to a common width so
+  # frames from different screenshots do not jitter between cuts.
+  echo "Source: folder of stills -> $SRC"
+  i=0
+  for f in "$SRC"/*; do
+    case "$f" in *.png|*.jpg|*.jpeg|*.PNG|*.JPG|*.JPEG) ;; *) continue ;; esac
+    # Force an exact 1280x720 for every frame. Hand-taken screenshots vary in
+    # aspect ratio, and ffmpeg's image sequence encoder requires all frames to
+    # share dimensions -- without this it fails on a mixed set.
+    ffmpeg -nostdin -v error -y -i "$f" \
+      -vf "scale=1280:720:force_original_aspect_ratio=increase:flags=lanczos,crop=1280:720" \
+      "$TMP/$(printf '%02d' "$i").png"
+    printf '  frame %d from %s\n' "$i" "$(basename "$f")"
+    i=$((i + 1))
+  done
+  [ "$i" -gt 0 ] || { echo "No images found in $SRC" >&2; exit 1; }
+  N=$i
+else
+
 DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$SRC")
 # Sample the middle 90% so titles and end cards do not dominate.
 START=$(echo "$DUR * 0.05" | bc -l)
@@ -34,6 +59,7 @@ for i in $(seq 0 $((N - 1))); do
     -vf "scale=1280:-2:flags=lanczos" "$TMP/$(printf '%02d' "$i").png"
   printf '  frame %d at %.1fs\n' "$i" "$T"
 done
+fi
 
 FPS=$(echo "1 / $HOLD" | bc -l)
 
