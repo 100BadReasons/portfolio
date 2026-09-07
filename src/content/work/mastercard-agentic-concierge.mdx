@@ -7,20 +7,28 @@ date: 2026-04-15
 published: true
 
 featured_preview:
-  kind: image
-  src: ../../assets/work/IMG_2970.jpeg
+  kind: video
+  poster: /media/mastercard-agentic-concierge/poster.avif
+  webm: /media/mastercard-agentic-concierge/preview.webm
+  mp4: /media/mastercard-agentic-concierge/preview.mp4
+  duration_s: 3.0
+  bytes: 355096
+  width: 1280
+  height: 720
   alt: >-
-    A still from the concept film: a soccer ball marked with the Mastercard logo
-    hitting the back of the net, overlaid with a chat exchange in which the
-    assistant reserves a Liverpool home kit at a no-wait merch booth.
+    A six-frame cover cycling through moments from the film: partner venues,
+    the Mastercard-marked ball hitting the net, and the assistant's chat
+    overlay resolving a cardholder request.
+
+og_image: /og/mastercard-agentic-concierge.jpg
 
 deep_dive_media:
   - kind: youtube
     id: ORKEwZBO4IQ
-    caption: The finished 30-40 second concept film.
+    caption: The finished one-minute concept film.
 
 tech_stack:
-  frontend_logic:
+  design_preproduction:
     - Figma
   motion_compositing:
     - After Effects
@@ -36,21 +44,16 @@ pipeline_diagram:
     Storyboard through delivery, with the chat simulation built as reusable
     MOGRT templates so dialogue could be revised without re-animating.
 
-# Every figure below is taken from your own description of the piece.
-# Nothing here is estimated. Add a stronger one if you have it: turnaround
-# time, view count, or how many revision rounds the MOGRT approach saved.
+# Runtime measured from MasterCardConciergeFINAL.mp4 (61.29s).
 metrics:
   - label: Runtime
-    value: 30-40s
-  - label: Scenarios
-    value: "3"
-    method: Liverpool FC (sports), Live Nation (music), LoL World Finals (gaming).
+    value: "1:01"
   - label: Live action to UI simulation
     value: 60/40
 
 engineering_challenge:
   constraint: >-
-    A 30-40 second film had to make three separate partner scenarios --
+    A one-minute film had to make three separate partner scenarios --
     Liverpool FC, Live Nation and a League of Legends final -- read as
     authentic Mastercard moments, with no licensed brand footage to cut from.
   resolution: >-
@@ -61,7 +64,7 @@ engineering_challenge:
     explaining, so no single shot had to do both jobs.
 ---
 
-The mission was to build a 30–40 second concept video showing how watsonx
+The mission was to build a one-minute concept video showing how watsonx
 Orchestrate could transform Mastercard's concierge app into a proactive,
 agentic assistant tied to their "Priceless" partnerships.
 
@@ -85,5 +88,5 @@ flowchart LR
   D --> E[MOGRT templates for chat simulation]
   E --> F[Montage in Premiere Pro]
   F --> G[MOGRT overlay + Apple Glass effect]
-  G --> H[Final 30-40s cut]
+  G --> H[Final 1:01 cut]
 ```

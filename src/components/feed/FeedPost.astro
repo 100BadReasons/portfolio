@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { CATEGORIES } from '../../lib/categories';
 import { SITE_NAME } from '../../lib/site';
-import { workPath } from '../../lib/url';
+import { withBase, workPath } from '../../lib/url';
 
 interface Props { project: CollectionEntry<'work'> }
 const { project } = Astro.props;
@@ -44,14 +44,14 @@ const tools = Object.values(data.tech_stack).flat().slice(0, 4);
         loop
         playsinline
         preload="none"
-        poster={preview.poster}
+        poster={withBase(preview.poster)}
         width={preview.width}
         height={preview.height}
         aria-label={preview.alt}
         data-autoplay
       >
-        <source src={preview.webm} type="video/webm" />
-        <source src={preview.mp4} type="video/mp4" />
+        <source src={withBase(preview.webm)} type="video/webm" />
+        <source src={withBase(preview.mp4)} type="video/mp4" />
       </video>
     )}
   </a>

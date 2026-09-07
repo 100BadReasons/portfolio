@@ -59,6 +59,10 @@ const deepDiveMedia = z.discriminatedUnion('kind', [
 /** Tech stack, categorised by function. */
 const techStack = z
   .object({
+    // Storyboarding, wireframing, look development -- the thinking that happens
+    // before anything is built. Figma belongs here on a film, not in
+    // Frontend/Logic, because the deliverable is a video, not an interface.
+    design_preproduction: listOf(z.string()),
     cad_3d: listOf(z.string()),
     frontend_logic: listOf(z.string()),
     motion_compositing: listOf(z.string()),

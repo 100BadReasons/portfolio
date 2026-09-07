@@ -48,6 +48,7 @@ const posted = data.date.toLocaleDateString('en-US', {
 });
 
 const stackGroups = [
+  ['Design / Preproduction', data.tech_stack.design_preproduction],
   ['CAD / 3D', data.tech_stack.cad_3d],
   ['Frontend / Logic', data.tech_stack.frontend_logic],
   ['Motion / Compositing', data.tech_stack.motion_compositing],
@@ -73,8 +74,8 @@ const stackGroups = [
       {!data.published && <span class="draft">Draft</span>}
     </header>
 
-    {preview.kind === 'image' && (
-      <div class="hero">
+    <div class="hero">
+      {preview.kind === 'image' ? (
         <Image
           src={preview.src}
           alt={preview.alt}
@@ -83,8 +84,24 @@ const stackGroups = [
           format="avif"
           loading="eager"
         />
-      </div>
-    )}
+      ) : (
+        /* Animated cover. Autoplays muted and loops, like the feed card.
+           `poster` paints instantly so there is no empty box while it loads. */
+        <video
+          muted
+          loop
+          playsinline
+          autoplay
+          poster={withBase(preview.poster)}
+          width={preview.width}
+          height={preview.height}
+          aria-label={preview.alt}
+        >
+          <source src={withBase(preview.webm)} type="video/webm" />
+          <source src={withBase(preview.mp4)} type="video/mp4" />
+        </video>
+      )}
+    </div>
 
     <div class="col">
       <h1>{data.title}</h1>

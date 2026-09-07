@@ -146,6 +146,7 @@ collections:
         widget: object
         collapsed: false
         fields:
+          - { label: 'Design / Preproduction', name: design_preproduction, widget: list, required: false }
           - { label: 'CAD / 3D', name: cad_3d, widget: list, required: false }
           - { label: 'Frontend / Logic', name: frontend_logic, widget: list, required: false }
           - { label: 'Motion / Compositing', name: motion_compositing, widget: list, required: false }
