@@ -18,6 +18,11 @@ export const CATEGORIES = {
     short: 'Motion',
     blurb: 'Real-time demos, motion systems, and compositing.',
   },
+  'content-creation': {
+    label: 'Content Creation',
+    short: 'Content',
+    blurb: 'Films, concept pieces, and produced video work.',
+  },
 } as const;
 
 export type CategoryId = keyof typeof CATEGORIES;
