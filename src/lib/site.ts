@@ -12,7 +12,7 @@
  *
  * TO LAUNCH: flip this to true. That is the whole change.
  */
-export const LAUNCHED = false;
+export const LAUNCHED = true;
 
 export const SITE_NAME = '100BadReasons';
 
