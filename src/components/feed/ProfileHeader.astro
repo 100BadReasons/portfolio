@@ -32,15 +32,15 @@ const { projectCount, categoryCount } = Astro.props;
       height="432"
       data-src={withBase('/media/banner/wordmark.mp4')}
     ></video>
-  </div>
 
-  <div class="identity">
-    <p class="name">{CONTACT.name}</p>
-    <p class="bio">Software engineering, 3D product design, and motion.</p>
-    <dl class="stats">
-      <div><dd>{projectCount}</dd><dt>projects</dt></div>
-      <div><dd>{categoryCount}</dd><dt>disciplines</dt></div>
-    </dl>
+    <div class="identity">
+      <p class="name">{CONTACT.name}</p>
+      <p class="bio">Software engineering, 3D product design, and motion.</p>
+      <dl class="stats">
+        <div><dd>{projectCount}</dd><dt>projects</dt></div>
+        <div><dd>{categoryCount}</dd><dt>disciplines</dt></div>
+      </dl>
+    </div>
   </div>
 </section>
 
@@ -81,7 +81,28 @@ const { projectCount, categoryCount } = Astro.props;
     background: var(--bg);
   }
 
-  .identity { padding: 0.25rem 1rem 1.5rem; display: grid; gap: 0.35rem; }
+  /**
+   * Tucked up into the wordmark's own black band.
+   *
+   * Measured from the source, the lettering occupies 5%-79% of the frame, so
+   * the clear band beneath it is 21% of the video's height. The video is
+   * 1188x432, so that band is 0.21 x 0.3636 = 7.64% of the banner's WIDTH.
+   *
+   * Percentage margins resolve against the containing block's width, so a
+   * negative margin in those terms pulls the text up by exactly the band
+   * height at every viewport size -- no breakpoints, no magic pixel values.
+   * 6.5% leaves a little clearance below the letterforms. The text then flows
+   * on past the video into page background, which is the same black, so the
+   * join is invisible.
+   */
+  .identity {
+    position: relative;
+    margin-top: -6.5%;
+    padding: 0 1rem 1.25rem;
+    display: grid;
+    gap: 0.3rem;
+    line-height: 1.4;
+  }
   .name { margin: 0; font-size: 0.95rem; font-weight: 700; }
   .bio { margin: 0; font-size: 0.9rem; color: var(--text-dim); max-width: 46ch; }
 
