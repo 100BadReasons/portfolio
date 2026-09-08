@@ -10,8 +10,11 @@ interface Props {
   description: string;
   path: string;
   ogImage?: string;
+  /** True on pages showing the banner wordmark, so the top bar can defer its
+   *  own copy of the name until the banner scrolls away. */
+  hasBanner?: boolean;
 }
-const { title, description, path, ogImage } = Astro.props;
+const { title, description, path, ogImage, hasBanner = false } = Astro.props;
 const canonical = absoluteUrl(path, Astro.site);
 ---
 <html lang="en">
@@ -34,7 +37,7 @@ const canonical = absoluteUrl(path, Astro.site);
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
   </head>
   <body>
-    <TopBar />
+    <TopBar hasBanner={hasBanner} />
     <slot />
     <SiteFooter />
   </body>

@@ -1,13 +1,59 @@
 ---
 import { SITE_NAME } from '../../lib/site';
 import { withBase } from '../../lib/url';
+
+interface Props { hasBanner?: boolean }
+const { hasBanner = false } = Astro.props;
 ---
 <header class="topbar">
   <div class="inner">
-    <a class="brand" href={withBase('/')}>{SITE_NAME}</a>
+    <!--
+      The brand is hidden while the banner wordmark is on screen -- showing the
+      name twice within 60px of itself is just noise. It fades in once the
+      banner scrolls away, which is the moment it actually earns its place as
+      wayfinding. On pages with no banner (every case study) it shows straight
+      away, handled by the script defaulting to visible.
+    -->
+    <a
+      class:list={['brand', { 'is-deferred': hasBanner }]}
+      href={withBase('/')}
+      data-brand
+    >{SITE_NAME}</a>
     <a class="contact-link" href="#contact">Contact</a>
   </div>
 </header>
+
+<script>
+  /**
+   * On the feed, the brand starts hidden (server-rendered with .is-deferred,
+   * so there is no flash) and appears once the banner wordmark has scrolled
+   * away. Every other page renders it visible from the server and this script
+   * does nothing -- so a script failure can never leave a page with no
+   * wayfinding, only without the reveal animation.
+   *
+   * Scroll arithmetic rather than IntersectionObserver: IO needs a painted
+   * page to compute intersections, and a comparison always resolves.
+   */
+  const brand = document.querySelector<HTMLElement>('[data-brand].is-deferred');
+  const banner = document.querySelector<HTMLElement>('.banner');
+
+  if (brand && banner) {
+    let queued = false;
+    const sync = () => {
+      queued = false;
+      // The bar is 60px and sticky, so the banner is gone once it passes under.
+      brand.classList.toggle('is-visible', banner.getBoundingClientRect().bottom <= 60);
+    };
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(sync);
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    sync();
+  }
+</script>
 
 <style>
   .topbar {
@@ -33,10 +79,28 @@ import { withBase } from '../../lib/url';
     letter-spacing: -0.02em;
     text-decoration: none;
   }
+
+  /* Only pages with the banner defer the name. Kept in the layout rather than
+     display:none so the bar's height never shifts. */
+  .brand.is-deferred {
+    opacity: 0;
+    transform: translateY(-2px);
+    pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .brand.is-deferred.is-visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
   .contact-link {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--accent);
     text-decoration: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand { transition: none; }
   }
 </style>
