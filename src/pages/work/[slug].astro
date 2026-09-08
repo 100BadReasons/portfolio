@@ -377,15 +377,16 @@ const stackGroups = [
     background: var(--surface); border-radius: var(--radius);
   }
 
-  /* Ultra-wide film. Breaking out of the 680px text column is not cosmetic:
-     at 5.3:1 the column gives 128px of height, the full width gives 270px.
-     Capped at 92vw rather than 100vw so a vertical scrollbar cannot push the
-     page into horizontal overflow. */
-  .deep .wide {
-    width: min(1400px, 92vw);
-    margin-left: 50%;
-    transform: translateX(-50%);
-  }
+  /* Ultra-wide film, aligned with the column like everything else.
+     
+     This used to break out of the 680px column via margin-left: 50% plus a
+     translate, to buy height on a 5.3:1 film. That trick misaligned the block
+     by 2px on a phone and, worse, overflowed to 1494px inside a 1280px
+     viewport on desktop -- forcing a horizontal scrollbar on the whole page.
+     A shorter player is a far smaller cost than a page that scrolls sideways,
+     and the film has native controls, so fullscreen is one click away. */
+  .deep .wide { width: 100%; }
+
   .deep .wide video {
     /* Native aspect, so there is no letterboxing to shrink the text. */
     aspect-ratio: var(--ar);
