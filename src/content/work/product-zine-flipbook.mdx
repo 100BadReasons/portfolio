@@ -1,0 +1,208 @@
+---
+title: Product Zine Flipbook
+tagline: Replaced a $1,020/yr flipbook subscription with a theme section that keeps every lookbook on the store.
+category: software
+role: Designer & Developer — spec, prompting, theme integration, and CSS/sizing tuning
+date: 2026-01-21
+published: true
+
+live_url: https://badwithoutreason.com/pages/product-zine
+
+featured_preview:
+  kind: video
+  poster: /media/product-zine-flipbook/poster.avif
+  webm: /media/product-zine-flipbook/preview.webm
+  mp4: /media/product-zine-flipbook/preview.mp4
+  duration_s: 5
+  bytes: 566187
+  width: 1280
+  height: 626
+  alt: >-
+    The Lover's Chain zine on badwithoutreason.com, open on its cover and
+    turning: the page peels back to a red spread reading "Untamed love. Cast in
+    silver.", with the four zine tabs — Lovers Chain, Charm'd, BWR Collection,
+    Distressed — above it.
+
+deep_dive_media:
+  - kind: local
+    src: /media/product-zine-flipbook/walkthrough.mp4
+    poster: /media/product-zine-flipbook/walkthrough-poster.avif
+    caption: >-
+      All four zines on the live page: Lover's Chain flipping spread by spread,
+      then a tab switch that shows the per-page render status before Charm'd and
+      the BWR Collection load.
+    width: 1280
+    height: 626
+
+tech_stack:
+  frontend_logic:
+    - Shopify Liquid
+    - Vanilla JS
+    - pdf.js
+    - StPageFlip
+    - Canvas API
+  ai_orchestration:
+    - ChatGPT Codex
+  infrastructure:
+    - Shopify Online Store 2.0
+    - Shopify CDN
+
+llm_orchestration:
+  summary: >-
+    Built with ChatGPT Codex. Codex wrote the Liquid section, the schema, the
+    CSS and the client-side render loop from a behavioural spec; the author set
+    the constraints, tested each pass in the Shopify theme editor, and drove the
+    sizing and abort-handling fixes the library defaults got wrong.
+  models:
+    - ChatGPT Codex
+  patterns:
+    - script-generation
+    - agent-workflow
+  autonomy: semi-autonomous
+  human_in_the_loop: >-
+    Every revision was previewed on the live theme before publishing. Sizing,
+    the mid-render cancel, and the library-load guard came out of real failures
+    found in the browser, not from the first generated draft.
+
+pipeline_diagram:
+  title: PDF to flipbook, entirely in the browser
+  kind: data-flow
+  caption: >-
+    Nothing is pre-rendered and nothing is stored. A merchant pastes a Shopify
+    Files URL into the theme editor; every page image is rasterised in the
+    visitor's own browser on click.
+
+engineering_challenge:
+  constraint: >-
+    A page-turn flipbook needs fixed-size DOM elements up front, but a PDF's
+    pages only exist as vector instructions until something rasterises them —
+    and the merchant can swap any of four PDFs mid-render.
+  resolution: >-
+    pdf.js rasterises each page to a canvas at a viewport-aware scale (1.4x
+    under 720px, 1.8x above), exports it as a JPEG data URL into a sized div,
+    and hands the finished set to StPageFlip via loadFromHTML. An abort token
+    flips on every tab switch and is checked between pages, so an in-flight
+    render dies instead of leaking stale spreads into the new book.
+
+metrics:
+  - label: Subscription replaced
+    value: $1,020/yr
+    method: >-
+      Flipsnack Business at $85/mo — the top self-serve tier, above Lite $14 and
+      Pro $38 (flipsnack.com pricing, Sept 2026).
+  - label: Recurring cost now
+    value: $0/mo
+    baseline: $85/mo
+    delta: −100%
+    method: >-
+      The libraries are self-hosted in theme assets. The only ongoing cost is
+      the Shopify plan that was already being paid.
+  - label: Zines live
+    value: "4"
+    method: Lovers Chain, Charm'd, BWR Collection, and Distressed — all on badwithoutreason.com, no second link.
+  - label: Third-party apps
+    value: "0"
+    method: No flipbook SaaS, no app embed, and no third-party script on the storefront.
+  - label: Section source
+    value: 9.7 KB
+    method: One Liquid file — markup, scoped CSS, schema, and render logic.
+  - label: Self-hosted libraries
+    value: 1.5 MB
+    method: pdf.min.js, pdf.worker.min.js, and page-flip.browser.min.js, served from the Shopify CDN rather than a public CDN.
+  - label: Merchant-editable slots
+    value: "4"
+    method: Title and URL pairs in the theme editor; empty slots disable their own button.
+---
+
+## Why build it instead of paying for it
+
+I was already paying for Flipsnack Business — $85/mo, $1,020/yr, the top
+self-serve tier. That matters, because the problems below are not the ones you
+fix by upgrading. I was already at the top.
+
+**The lookbook lived somewhere else.** The zines are sales material — line
+sheets and lookbooks that go to buyers, stockists and customers. Hosted on a
+third-party flipbook platform, sharing them meant sending two links: one to the
+store, where the products are, and one to a stranger's domain, where the
+lookbook is. Every reader who wanted to actually buy something had to find
+their own way back. The catalogue and the checkout were on different websites.
+
+**The rest of the deterrents, in the order they mattered:**
+
+- **$1,020 a year for a feature that is 10 KB of theme code.** The plan renewed
+  whether or not a new zine shipped that month, and the price scales with
+  publication count, not with value delivered. Four zines a year is $255 each.
+- **Traffic leaves the store.** A hosted flipbook is a page view on the
+  vendor's domain, not yours. No product links, no cart, no session, and none
+  of it lands in Shopify analytics — so the lookbook that drove a sale is
+  invisible in the store's own reporting.
+- **The SEO goes to the host.** Any indexing credit for the catalogue accrues
+  to the platform's domain rather than badwithoutreason.com.
+- **A custom domain is the most expensive thing on the price list, and it still
+  isn't your store.** Flipsnack gates custom domains behind Business — the
+  $85/mo tier I was on. The best outcome money can buy there is a nicer address
+  for the second website. It never puts the zine next to the products.
+- **Still metered, at the top tier.** Business caps at 100 flipbooks of 500
+  pages. Paying the most on the list does not mean paying for "unlimited"; the
+  next stop is a custom Enterprise contract.
+- **Seats cost extra on top.** $25/mo per additional editor.
+- **Link rot on material already sent out.** Every share link lives on someone
+  else's platform. Cancel the plan, hit a tier limit, or have the vendor change
+  pricing or sunset the product, and the lookbooks already in a buyer's inbox
+  stop resolving. Self-hosting makes a dead zine impossible as long as the store
+  exists.
+- **Third-party script weight.** App-based flipbooks inject a vendor bundle into
+  the storefront. This section loads its libraries only on the one page that
+  uses them.
+
+Rebuilding it took a weekend. It has cost nothing since, and the lookbooks now
+live at the same address as the products they sell.
+
+## What it is
+
+A single Online Store 2.0 section, `sections/flipbook-pdf.liquid`, bound to the
+Product Zines page through `templates/page.product-zine.json`. It takes up to
+four hosted PDF lookbooks and presents them as a two-page spread with a real
+page-turn animation — no flipbook app, no subscription, and no pre-rendered
+image sets sitting in the asset folder.
+
+**Merchant-configurable, not hardcoded.** The schema exposes four title/URL
+pairs. Titles truncate at 15 characters so the tab row never wraps; any slot
+left blank renders its button disabled rather than broken. Swapping a zine is
+pasting a new Shopify Files URL in the theme editor — no code change, no
+redeploy.
+
+**Rendering happens client-side, on demand.** Clicking a tab fetches the PDF as
+an ArrayBuffer, pushes it through pdf.js, and rasterises every page to a canvas
+at a scale chosen from viewport width. Each canvas becomes a JPEG data URL
+inside a `.bwr-page` div, and the finished set is loaded into StPageFlip. An
+`aria-live` status region announces "Rendering page 3 of 12…" and clears itself
+on completion.
+
+**The failure modes it was actually built against.** The libraries load with
+`defer` while the inline script runs on `DOMContentLoaded`, so a polling guard
+waits up to 12 seconds for `window.pdfjsLib` and `window.St.PageFlip` before
+throwing a legible error. Switching zines mid-render trips an abort token that
+is checked between every page, so a half-rendered book never bleeds into the
+next one. And StPageFlip's own wrapper elements fight the container, so the
+section overrides `.stf__parent`, `.stf__block` and `.stf__wrapper` to fill the
+frame and centre the single-page cover view.
+
+**Scoped to its own instance.** Every query runs against
+`[data-bwr-section-id="{{ section.id }}"]`, so dropping a second Product Zine
+section on the same page does not have the two viewers stealing each other's
+buttons.
+
+## PDF to flipbook, entirely in the browser
+
+```mermaid
+flowchart LR
+  A[Theme editor<br/>4 title + URL pairs] --> B[Tab buttons<br/>data-pdf-url]
+  B -->|click| C[fetch PDF<br/>as ArrayBuffer]
+  C --> D[pdf.js + self-hosted<br/>worker asset]
+  D --> E[Each page to canvas<br/>1.4x mobile / 1.8x desktop]
+  E --> F[JPEG data URL<br/>in .bwr-page div]
+  F --> G[StPageFlip<br/>loadFromHTML]
+  G --> H[Two-page spread<br/>with flip animation]
+```
+
