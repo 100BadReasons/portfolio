@@ -1,61 +1,97 @@
 ---
 import { SITE_NAME, CONTACT } from '../../lib/site';
+import { withBase } from '../../lib/url';
 
 interface Props { projectCount: number; categoryCount: number }
 const { projectCount, categoryCount } = Astro.props;
 ---
 <section class="profile">
-  <!-- Instagram's gradient ring, built in CSS so it costs no image request. -->
-  <div class="avatar" aria-hidden="true"><span>100</span></div>
+  <!--
+    The wordmark is a video: chrome-textured lettering on black, matching the
+    page background exactly so it sits seamlessly with no visible edge.
 
-  <div class="meta">
-    <h1>{SITE_NAME}</h1>
+    It carries the site name, so the name has to exist as real text for screen
+    readers and search engines -- hence the visually hidden h1 with the video
+    marked decorative beside it.
+
+    preload="none" keeps 1.2 MB off the critical path. The 9 KB poster paints
+    immediately and playback starts once the page has loaded, so the banner
+    never delays first paint.
+  -->
+  <div class="banner">
+    <h1 class="sr-only">{SITE_NAME}</h1>
+    <video
+      id="wordmark"
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"
+      poster={withBase('/media/banner/wordmark.avif')}
+      width="1188"
+      height="432"
+      data-src={withBase('/media/banner/wordmark.mp4')}
+    ></video>
+  </div>
+
+  <div class="identity">
+    <p class="name">{CONTACT.name}</p>
+    <p class="bio">Software engineering, 3D product design, and motion.</p>
     <dl class="stats">
-      <div><dt>projects</dt><dd>{projectCount}</dd></div>
-      <div><dt>disciplines</dt><dd>{categoryCount}</dd></div>
+      <div><dd>{projectCount}</dd><dt>projects</dt></div>
+      <div><dd>{categoryCount}</dd><dt>disciplines</dt></div>
     </dl>
-    <p class="bio">
-      <span class="realname">{CONTACT.name}</span>
-      Software engineering, 3D product design, and motion.
-    </p>
   </div>
 </section>
 
-<style>
-  .profile {
-    max-width: var(--max-w);
-    margin: 0 auto;
-    padding: 2rem 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.75rem;
-  }
-  .avatar {
-    flex: none;
-    width: 84px;
-    height: 84px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background:
-      linear-gradient(var(--bg), var(--bg)) padding-box,
-      conic-gradient(from 200deg, #f9ce34, #ee2a7b, #6228d7, #f9ce34) border-box;
-    border: 3px solid transparent;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .meta { display: grid; gap: 0.6rem; }
-  h1 { margin: 0; font-size: 1.35rem; font-weight: 400; }
-  .stats { display: flex; gap: 1.75rem; margin: 0; }
-  .stats div { display: flex; gap: 0.35rem; }
-  .stats dt { order: 2; color: var(--text-dim); font-size: 0.9rem; }
-  .stats dd { order: 1; margin: 0; font-weight: 600; font-size: 0.9rem; }
-  .bio { margin: 0; font-size: 0.9rem; color: var(--text-dim); max-width: 46ch; }
-  .realname { display: block; color: var(--text); font-weight: 600; }
+<script>
+  /**
+   * Start the banner only after the page has loaded, so 1.2 MB of video never
+   * competes with content for bandwidth. With reduced motion requested, the
+   * poster is left in place and the video is never fetched at all.
+   */
+  const video = document.getElementById('wordmark') as HTMLVideoElement | null;
+  const src = video?.dataset.src;
 
-  @media (max-width: 640px) {
-    .profile { gap: 1.25rem; align-items: flex-start; }
-    .avatar { width: 64px; height: 64px; font-size: 0.8rem; }
+  if (video && src && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const start = () => {
+      // Set as a property, not just the HTML attribute: some browsers only
+      // grant autoplay when muted is true on the element object at play() time.
+      video.muted = true;
+      video.src = src;
+      video.play().catch(() => {
+        /* Autoplay refused; the poster stays, which is a complete fallback. */
+      });
+    };
+    if (document.readyState === 'complete') start();
+    else addEventListener('load', start, { once: true });
+  }
+</script>
+
+<style>
+  .profile { max-width: var(--max-w); margin: 0 auto; }
+
+  /* Full-bleed within the content column: the wordmark runs edge to edge. */
+  .banner { line-height: 0; }
+  .banner video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1188 / 432;
+    display: block;
+    background: var(--bg);
+  }
+
+  .identity { padding: 0.25rem 1rem 1.5rem; display: grid; gap: 0.35rem; }
+  .name { margin: 0; font-size: 0.95rem; font-weight: 700; }
+  .bio { margin: 0; font-size: 0.9rem; color: var(--text-dim); max-width: 46ch; }
+
+  .stats { display: flex; gap: 1.5rem; margin: 0.15rem 0 0; }
+  .stats div { display: flex; gap: 0.35rem; }
+  .stats dd { margin: 0; font-weight: 600; font-size: 0.85rem; }
+  .stats dt { color: var(--text-dim); font-size: 0.85rem; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
 </style>

@@ -2,11 +2,20 @@
  * Single source of truth for the filter bar, the Zod enum, and card badges.
  * Adding a category here propagates everywhere; nothing else needs editing.
  */
+/**
+ * Declaration order is the filter-bar order. Keep it in the intended
+ * presentation order rather than sorting it elsewhere.
+ */
 export const CATEGORIES = {
   software: {
     label: 'Software & Web Applications',
     short: 'Software',
     blurb: 'Shipped applications, tooling, and platform work.',
+  },
+  'content-creation': {
+    label: 'Content Creation',
+    short: 'Content',
+    blurb: 'Films, concept pieces, and produced video work.',
   },
   'product-3d': {
     label: '3D Product Design & Renders',
@@ -17,11 +26,6 @@ export const CATEGORIES = {
     label: 'Interactive Demos & Motion',
     short: 'Motion',
     blurb: 'Real-time demos, motion systems, and compositing.',
-  },
-  'content-creation': {
-    label: 'Content Creation',
-    short: 'Content',
-    blurb: 'Films, concept pieces, and produced video work.',
   },
 } as const;
 
