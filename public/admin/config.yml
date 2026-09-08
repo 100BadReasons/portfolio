@@ -135,6 +135,11 @@ collections:
             fields:
               - { label: Video ID, name: id, widget: string }
               - { label: Caption, name: caption, widget: string }
+              - label: Vertical (a Short)
+                name: vertical
+                widget: boolean
+                default: false
+                hint: 'Enable for 9:16 Shorts, or they pillarbox into a 16:9 frame.'
           - label: 'Self-hosted (wide/ultra-wide film)'
             name: local
             widget: object

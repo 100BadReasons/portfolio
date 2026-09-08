@@ -4,10 +4,10 @@ tagline: Originally designed for an engagement, this set is made in Sterling Sil
 category: product-3d
 role: Jewelry & 3D Designer
 date: 2026-01-05
-published: false
-order: null
-live_url: https://youtube.com/shorts/xJT3UmUgwFA?si=ndFucAUTmWVf6EDG
-repo_url: ''
+published: true
+
+live_url: https://badwithoutreason.com/collections/amorphous-series
+
 featured_preview:
   kind: image
   src: ../../assets/work/amorphous-ring.jpg
@@ -15,30 +15,64 @@ featured_preview:
     A black and white photograph of a sterling silver ring from the Amorphous
     series, its surface sculpted into fluid folds with small diamonds set flush
     into the metal, lit against a black background.
-gallery: []
-deep_dive_media: []
+
+deep_dive_media:
+  - kind: youtube
+    id: xJT3UmUgwFA
+    caption: The finished set.
+    vertical: true
+
 tech_stack:
-  design_preproduction: []
   cad_3d:
     - Rhino
     - Blender
-    - 3D Printed Wax
-    - Direct Investment Mold
-  frontend_logic: []
-  motion_compositing: []
-  ai_orchestration: []
-  infrastructure: []
-llm_orchestration: null
-pipeline_diagram: null
-engineering_challenge: null
-metrics: []
-og_image: ''
+    - 3D printed wax
+    - Direct investment casting
+
+pipeline_diagram:
+  title: CAD to cast pipeline
+  kind: production-pipeline
+  caption: >-
+    Two tools used for what each is good at -- Rhino for dimensional precision,
+    Blender for the sculpted surface -- with the mesh returning to Rhino so the
+    stone seats could be cut with CAD accuracy into an organic body.
+
+engineering_challenge:
+  constraint: >-
+    A brief that started out heavily structured had to end up reading as molten.
+    But a sculpted organic surface fights precision stone setting: 20 VVS
+    diamonds across three sizes need exact, flat seats that a freeform Blender
+    sculpt does not give you.
+  resolution: >-
+    Split the work by what each tool is actually good at. Rhino built the ring
+    body to the client's measurements and subtracted the voids; Blender sculpted
+    the surface into the liquid form; then the mesh went back into Rhino so the
+    bezel subtractions were cut with CAD precision into an organically sculpted
+    body. Printed in wax, direct investment cast, then polished and set by hand.
+
+metrics:
+  - label: Sterling silver rings
+    value: "3"
+  - label: VVS diamonds set
+    value: "20"
+    method: Flush-set across three bezel sizes.
+  - label: Weddings
+    value: "1"
 ---
 
 What started off as a heavily structure ask, developed into the ultimate display of fluidity. This custom set of rings was designed in Rhino 3D. I start with a basic ring body sized to the clients specifications then subtracted holes into the ring. I brought the ring into Blender to create sculpt the surface created the liquid effect depicted in the final result. Once the surface is complete I pulled the rings back into Rhino to create bezel setting subtractions for 3 sizes of VVS diamonds. 
 
-I then casted the ring using direct investment casting. Polished and set the diamonds. 
+I then casted the ring using direct investment casting. Polished and set the diamonds.
 
-The collection is available online at the link below. 
+## From CAD to cast
 
-https://badwithoutreason.com/collections/amorphous-series
+```mermaid
+flowchart LR
+  A[Ring body in Rhino<br/>sized to client] --> B[Subtract voids]
+  B --> C[Sculpt surface in Blender<br/>liquid form]
+  C --> D[Back to Rhino<br/>bezel subtractions, 3 stone sizes]
+  D --> E[3D printed wax]
+  E --> F[Direct investment casting]
+  F --> G[Polish]
+  G --> H[Set 20 VVS diamonds]
+```

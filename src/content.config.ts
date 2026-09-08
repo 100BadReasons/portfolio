@@ -47,7 +47,13 @@ const deepDiveMedia = z.discriminatedUnion('kind', [
     bytes: z.number().int().positive().optional(),
   }),
   z.object({ kind: z.literal('vimeo'), id: z.string(), caption: z.string(), hash: z.string().optional() }),
-  z.object({ kind: z.literal('youtube'), id: z.string(), caption: z.string() }),
+  z.object({
+    kind: z.literal('youtube'),
+    id: z.string(),
+    caption: z.string(),
+    /** Shorts are 9:16. In a 16:9 player they pillarbox to a sliver. */
+    vertical: z.boolean().default(false),
+  }),
   /**
    * Self-hosted in /public/media. Use when a platform player would ruin the
    * piece -- an ultra-wide film letterboxed into a 16:9 frame loses most of its
