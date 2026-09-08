@@ -91,14 +91,24 @@ const { projectCount, categoryCount } = Astro.props;
    * Percentage margins resolve against the containing block's width, so a
    * negative margin in those terms pulls the text up by exactly the band
    * height at every viewport size -- no breakpoints, no magic pixel values.
-   * 6.5% leaves a little clearance below the letterforms. The text then flows
-   * on past the video into page background, which is the same black, so the
-   * join is invisible.
+   * The text then flows on past the video into page background, which is the
+   * same black, so the join is invisible.
+   *
+   * --lift is the single knob for vertical placement. 6.5% sat the text just
+   * clear of the letterforms; 9.1% is that raised by 40%, which tucks it
+   * further up into the wordmark. Raise or lower this one number to taste.
+   *
+   * --indent aligns the text's left edge with the "1" of "100". Measured off
+   * settled frames, the lettering starts at column 56 of 1188, so 4.75% of the
+   * banner width -- as a percentage it stays aligned as the banner scales,
+   * which a fixed 1rem could not.
    */
   .identity {
+    --lift: 9.1%;
+    --indent: 4.75%;
     position: relative;
-    margin-top: -6.5%;
-    padding: 0 1rem 1.25rem;
+    margin-top: calc(-1 * var(--lift));
+    padding: 0 var(--indent) 1.25rem;
     display: grid;
     gap: 0.3rem;
     line-height: 1.4;
