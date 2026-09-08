@@ -24,7 +24,7 @@ const present = CATEGORY_IDS.filter((id) => used.has(id)) as CategoryId[];
   <ProfileHeader projectCount={projects.length} categoryCount={present.length} />
   <FilterBar active={present} />
 
-  <main class="feed">
+  <main class="feed" data-feed>
     {projects.map((project) => <FeedPost project={project} />)}
 
     {/* Two distinct empty states. Nothing published at all is a different
@@ -39,6 +39,36 @@ const present = CATEGORY_IDS.filter((id) => used.has(id)) as CategoryId[];
 
 <style>
   .feed { padding: 1.5rem 0 0; }
+
+  /* ---- TEMPORARY layout comparison ----------------------------------------
+     Append ?layout=grid or ?layout=wide to the feed URL to preview an
+     alternative desktop layout. Remove this block, the data-layout script and
+     the [data-layout] rules once a direction is chosen. Default (no param) is
+     unchanged, so nobody arriving at the site sees an experiment.            */
+
+  /* Two-column grid above 1100px. */
+  @media (min-width: 1100px) {
+    .feed[data-layout='grid'] {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.75rem;
+      align-items: start;
+    }
+    .feed[data-layout='grid'] :global(.post) {
+      max-width: none;
+      margin: 0;
+    }
+  }
+
+  /* Wider single column. */
+  @media (min-width: 760px) {
+    .feed[data-layout='wide'] :global(.post) {
+      max-width: 640px;
+    }
+  }
+  /* ---- end temporary block ---- */
   .empty {
     max-width: 470px;
     margin: 3rem auto;
@@ -60,6 +90,13 @@ const present = CATEGORY_IDS.filter((id) => used.has(id)) as CategoryId[];
    * Both degrade gracefully: with JS off, every post renders and videos simply
    * do not autoplay. Nothing is hidden behind script.
    */
+  /* TEMPORARY: ?layout=grid | wide previews an alternative desktop layout.
+     Remove alongside the [data-layout] CSS once a direction is chosen. */
+  const layout = new URL(location.href).searchParams.get('layout');
+  if (layout === 'grid' || layout === 'wide') {
+    document.querySelector('[data-feed]')?.setAttribute('data-layout', layout);
+  }
+
   const posts = [...document.querySelectorAll<HTMLElement>('.post')];
   const pills = [...document.querySelectorAll<HTMLButtonElement>('.pill')];
   const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
