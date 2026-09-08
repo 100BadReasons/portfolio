@@ -1,33 +1,75 @@
 ---
-title: Charm’d
-tagline: A collection of charmed bracelets, necklaces, and earrings.
+title: Charm'd
+tagline: A modular charm collection built on interchangeable hardware, launching into retail.
 category: product-3d
 role: Jewelry & 3D Designer
 date: 2026-02-14
-published: false   # slug is charmd: a curly apostrophe in the filename
-                   # would produce /work/charm%E2%80%99d. Title keeps the mark.
-order: null
-live_url: https://youtu.be/uwKVIBSB5Ng?si=mJwpdEGEICma7c7C
-repo_url: ''
+published: true
+
+live_url: https://badwithoutreason.com/collections/charmed
+
 featured_preview:
   kind: image
   src: ../../assets/work/IMG_3016.jpeg
-  alt: N/A XXXXXXXXX
-gallery: []
-deep_dive_media: []
+  alt: >-
+    A spec sheet for the Pop Punk V2 bracelet: a parts list naming each charm
+    and its quantity, the assembled sterling silver bracelet, and renders of the
+    individual mace, safety pin and toggle components beside it.
+
+gallery:
+  - src: ../../assets/work/charmd-sheet-1.jpg
+    caption: Collection cover, with the full charm library scattered around it.
+  - src: ../../assets/work/charmd-sheet-2.jpg
+    caption: Dead Ringer V1 and V2, sterling silver 925.
+  - src: ../../assets/work/charmd-sheet-3.jpg
+    caption: Pop Punk V1 and V2.
+  - src: ../../assets/work/charmd-sheet-4.jpg
+    caption: Pop Punk V3 and Spikes V1, closing out the six.
+
+deep_dive_media:
+  - kind: youtube
+    id: uwKVIBSB5Ng
+    caption: Pop Punk V2 in motion.
+
 tech_stack:
   design_preproduction:
     - Figma
-  cad_3d: []
-  frontend_logic: []
-  motion_compositing: []
-  ai_orchestration: []
-  infrastructure: []
-llm_orchestration: null
-pipeline_diagram: null
-engineering_challenge: null
-metrics: []
-og_image: ''
+  cad_3d:
+    - Rhino
+    - Blender
+    - 3D printed wax
+    - Direct investment casting
+
+pipeline_diagram:
+  title: One bead spec, six bracelets
+  kind: production-pipeline
+  caption: >-
+    A single slide-on bead geometry is the constraint every charm is designed
+    against, so anything cast from it fits any chain in the collection.
+
+engineering_challenge:
+  constraint: >-
+    A collection only compounds if pieces interchange freely, but every added
+    mechanism -- clasps, jump rings, dedicated carriers -- is another part to
+    manufacture, hold tolerance on, and have fail in a customer's hands.
+  resolution: >-
+    Standardised on a universal slide-on bead that threads directly over the
+    chain links, so a charm carries no hardware of its own and any charm fits
+    any bracelet. Over 30 charms, toggles and connectors were prototyped against
+    that one spec before the line was cut down to three aesthetic stories.
+
+metrics:
+  - label: Bracelets in the collection
+    value: "6"
+    method: Dead Ringer V1 and V2, Pop Punk V1 to V3, and Spikes V1.
+  - label: Pieces prototyped
+    value: 30+
+    method: Charms, toggles and connectors, distilled to three stories.
+  - label: Revenue to date
+    value: $12K
+  - label: Retail launch
+    value: 2 stores
+    method: Launching Fall 2026.
 ---
 
 The mission was to transition from standalone, single-piece jewelry design into a scalable, collection-based architecture for Spring 2026, leveraging the high-LTV mechanics that built Pandora into a global powerhouse.
@@ -41,3 +83,17 @@ The mission was to transition from standalone, single-piece jewelry design into 
  **Phased Rollout:** Launched Phase 1 (Bracelets) to establish the foundational hardware and silhouette, setting up an immediate bridge into Phase 2: _Charm’d Earrings_.
 
  **Core Objective:** Shift from one-off product drops to a collectible, repeatable ecosystem that encourages ongoing customer curation.
+
+## From one bead spec
+
+```mermaid
+flowchart LR
+  A[Universal slide-on<br/>bead spec] --> B[Charm design in Rhino]
+  B --> C[Detail and sculpt<br/>in Blender]
+  C --> D[3D printed wax]
+  D --> E[Direct investment casting]
+  E --> F[Polish and assemble<br/>onto chain]
+  F --> G[Dead Ringer]
+  F --> H[Pop Punk]
+  F --> I[Spikes]
+```
