@@ -1,0 +1,169 @@
+---
+title: Vendor Scout
+tagline: A pipeline of agents that finds wholesale vendors, drafts the outreach, and by default can never send.
+category: software
+role: Founder & Developer — architecture, the safety model, and every send decision
+date: 2026-09-09
+published: true
+wip: true
+
+featured_preview:
+  kind: video
+  poster: /media/vendor-scout/poster.avif
+  webm: /media/vendor-scout/preview.webm
+  mp4: /media/vendor-scout/preview.mp4
+  duration_s: 6
+  bytes: 329748
+  width: 1280
+  height: 720
+  alt: >-
+    The Vendor Pipeline dashboard in a dark theme — stat cards for ready to
+    send, found, sent and followed up above a vendor table with per-row Do Not
+    Email and Approve to Send buttons.
+
+gallery:
+  - src: ../../assets/work/vendor-scout-blackbook.jpg
+    caption: >-
+      The system this replaced: a spreadsheet kept by hand, one row per store.
+      Contact details blurred.
+  - src: ../../assets/work/vendor-scout-email-a.jpg
+    caption: >-
+      A first-touch draft in the image-led voice, naming a brand the buyer
+      already stocks and quoting the real wholesale band.
+  - src: ../../assets/work/vendor-scout-email-b.jpg
+    caption: >-
+      The film-led voice. Same pipeline, different opening — the styles are
+      calibrated from outreach I had already sent and had land.
+  - src: ../../assets/work/vendor-scout-appsscript.jpg
+    caption: >-
+      The Apps Script web app behind every dashboard button — the one piece of
+      the system that isn't Python, because it can drive the sheet and Gmail
+      with no infrastructure of its own.
+
+deep_dive_media:
+  - kind: local
+    src: /media/vendor-scout/film.mp4
+    poster: /media/vendor-scout/film-poster.avif
+    caption: >-
+      The dashboard the pipeline publishes on every run: stat cards that filter
+      the list, expandable vendor notes, batch approve and do-not-email, and the
+      Opportunities tab.
+    width: 1280
+    height: 720
+
+tech_stack:
+  design_preproduction:
+    - Figma
+  frontend_logic:
+    - Python 3.11
+    - Google Apps Script
+    - HTML
+  ai_orchestration:
+    - Claude
+    - Anthropic API
+    - Web search
+  infrastructure:
+    - Google Sheets
+    - Gmail API
+    - Shopify Admin GraphQL
+    - GitHub Actions
+
+llm_orchestration:
+  summary: >-
+    Claude runs five of the six agent stages through the Anthropic API — web search
+    for candidate boutiques, outreach drafting in voice styles calibrated from
+    my own sent mail, reply classification, and opportunity research. One Google
+    Sheet is the system of record for all of them.
+  models:
+    - Claude
+  patterns:
+    - agent-workflow
+    - api-pipeline
+    - structured-extraction
+    - script-generation
+  autonomy: semi-autonomous
+  human_in_the_loop: >-
+    Nothing emails a vendor without an approval. The agents create Gmail drafts
+    only; the single sender script defaults to a dry run and requires --confirm;
+    a do_not_email flag is checked by every downstream stage; and an automated
+    Final Review gate must pass before a row can be marked ready to send.
+
+pipeline_diagram:
+  title: The agents, and the one human gate
+  kind: system-architecture
+  caption: >-
+    Every stage reads the whole sheet and writes back only the rows it touched,
+    so a re-run never duplicates work. The only path to a real send runs through
+    an approval.
+
+engineering_challenge:
+  constraint: >-
+    Roughly two hours a day went into wholesale outreach — finding boutiques,
+    drafting emails, tracking who replied, remembering to follow up. Cold email
+    now averages about a 3.4% reply rate, so most of those hours were being
+    spent on messages that would never get answered.
+  resolution: >-
+    Six agents split the job — finding candidates, enriching them, classifying
+    replies, drafting outreach in a voice calibrated from my own sent mail,
+    researching opportunities, and gating the batch before send. They can find,
+    draft and report unattended, but by default none of them can send. A real
+    email to a real vendor stays an explicit decision I make.
+
+metrics:
+  - label: Vendors found
+    value: "56"
+    method: Sourced by the Scout agent and cross-referenced against already-tracked retailers so nothing is added twice.
+  - label: Emails sent
+    value: "70"
+    method: 42 first-touch emails plus 28 follow-ups, counted off the live dashboard.
+  - label: Time back
+    value: 60 hours
+    method: Roughly two hours a day of prospecting, drafting and follow-up tracking, now handled by a cron job.
+  - label: New vendor partners
+    value: "2"
+---
+
+Bad Without Reason is a Brooklyn punk-modern jewelry brand, and growing its
+wholesale side means finding the right independent boutiques, writing to them in
+a way that doesn't read as templated, and not losing the thread on follow-ups.
+
+## Why hand it to agents
+
+I was spending about **two hours a day** on that. The return on those hours is
+worse than it feels — the average cold email reply rate is now around **3.4%**,
+down from 8.5% in 2019, so most of that work goes into messages nobody answers.
+
+None of it is judgment work. The judgment is which stores are actually right,
+what the emails sound like, which openings are landing, and how a negotiation
+goes once someone replies. So the pipeline got the research and the drafting,
+and I kept the decisions.
+
+## The agents, and the one human gate
+
+```mermaid
+flowchart LR
+  S[Scout] --> E[Enrichment]
+  E --> R[Reviewer]
+  R --> D[Drafter]
+  D --> O[Opportunities]
+  O --> F[Final Review]
+  F --> H{Human<br/>approval}
+  H -->|approved| X[Send]
+  H -->|do not email| Z[Stop]
+```
+
+- **Scout** — searches the web for candidate boutiques and concept stores, cross-referenced against tracked retailers so nothing is added twice.
+- **Enrichment** — fills in vendor type, fit reasoning and email for anything added bare by hand.
+- **Reviewer** — reads Gmail threads and classifies replies, separately detecting bounces so a delivery failure is never mistaken for a real answer.
+- **Drafter** — writes first-touch outreach and 10-day nudges in three voices calibrated from mail I had already sent and had land, as Gmail drafts only.
+- **Opportunities** — researches trade shows and marketplaces and analyses how the pipeline itself is performing.
+- **Final Review** — the automated pre-send gate: valid address, a real non-empty draft, no placeholder text, no duplicate recipient.
+
+Each is a standalone Python script reading and writing one Google Sheet as the
+shared system of record. Every stage reads the full sheet and writes back only
+the rows it touched, so the pipeline is safe to re-run at any time.
+
+**The safety model is the point.** Nothing here can email a vendor. The agents
+create drafts and sheet rows; one separate script can send, defaults to a dry
+run, and needs `--confirm`; a `do_not_email` flag is checked at every stage. The
+only thing still on my desk is the send decision, which is where I wanted it.
