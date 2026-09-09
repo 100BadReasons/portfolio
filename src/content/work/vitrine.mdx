@@ -109,24 +109,25 @@ engineering_challenge:
     real artwork — covers pulled by API, jackets built from scans.
 
 metrics:
-  - label: Pad neutrality
-    value: R/B 1.009
-    baseline: R/B 1.303
-    method: Measured on the jewelry pad region before and after; 1.00 is neutral.
-  - label: Jewelry staged
-    value: "11"
-    method: Ten rings and one bracelet, on a 74.4 × 62.8 mm grid extended from the pieces already placed, so nothing existing had to move.
-  - label: Set dressing built
-    value: 15 books · 9 records
-    method: Books driven from a Google Sheet manifest; records sourced by API from real releases, with three titles corrected against the actual pressings.
-  - label: Artwork registration
-    value: 0.4 px
-    method: Error at 2048 px on the cover bands of a generated wrap. The spine band's 1.5 px is the fillet rounding the corners — physically correct.
-  - label: Bad measurements caught
-    value: "2"
+  - label: Scripts written
+    value: "14"
     method: >-
-      The spine detector twice returned a confident, badly wrong measurement on
-      an all-black cover. Guards added after the first caught the second.
+      Purpose-built for this scene: the Sheet-driven book builder, the spine-fold
+      detector, in-engine text rasterisation, logo alpha extraction, record
+      artwork sourcing, the node-group builder, hole detection, camera framing
+      and easing solvers, cavity baking and normalisation, HDRI colour
+      measurement, render A/B scoring, Figma template publishing, and revert
+      capture.
+  - label: New Blender techniques
+    value: "12"
+    method: >-
+      Things I did not know before this scene — three Blender 5.2 API changes
+      that break the documented 4.x patterns, Fill Curve dropping attributes,
+      baking cavity to vertex colour instead of live AO, why box projection
+      fans on thin edges and why grain steers on Z not X, world vs object
+      texture coordinates, transmission bounce exhaustion, hide_render against
+      hide_viewport, Follow Path offset maths, GPU offscreen text needing an
+      ortho matrix, and matrix_world going stale after a location set.
 ---
 
 A jewelry vitrine, staged from a bare case on a wood floor into a furnished
@@ -265,9 +266,11 @@ and only if something can query it.
 a shader was the fast part. What made the output trustworthy was measuring it,
 and every time that step was skipped something wrong got through.
 
-**Names and labels lie.** A datablock called `Clothing store pink warm light`
-had nothing to do with the warm cast. Anything inferred from a label needs
-measuring before it's acted on.
+**Label things properly.** A datablock still called `Clothing store pink warm
+light` long after that environment was swapped out sent the first lighting
+diagnosis in exactly the wrong direction. Names are the cheapest documentation a
+scene file has, and they only stay useful if they're updated the moment the thing
+behind them changes.
 
 **Short, specific direction beats a brief.** The notes that changed the work most
 were one-liners — *"the book seems a bit flat, like a cube"*, *"note the
