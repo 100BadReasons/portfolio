@@ -25,7 +25,10 @@ const tools = Object.values(data.tech_stack).flat().slice(0, 4);
       <span class="handle">{SITE_NAME}</span>
       <span class="place">{CATEGORIES[data.category].label}</span>
     </div>
-    {!data.published && <span class="draft">Draft</span>}
+    <div class="badges">
+      {data.wip && <span class="badge wip">WIP</span>}
+      {!data.published && <span class="badge draft">Draft</span>}
+    </div>
   </header>
 
   {preview && (
@@ -101,13 +104,14 @@ const tools = Object.values(data.tech_stack).flat().slice(0, 4);
   .who { display: grid; line-height: 1.25; }
   .handle { font-size: 0.85rem; font-weight: 600; text-decoration: none; }
   .place { font-size: 0.75rem; color: var(--text-dim); }
-  .draft {
-    margin-left: auto;
+  .badges { margin-left: auto; display: flex; gap: 0.35rem; }
+  .badge {
     font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--bg); background: var(--text-dim);
     padding: 0.15rem 0.4rem; border-radius: 3px;
   }
+  .wip { background: #f9ce34; color: #121212; }
 
   /* Media sets its own height. Covers are generated at card-friendly aspect
      ratios by scripts/cover-frames.sh, so this needs no clamping -- and a

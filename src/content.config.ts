@@ -206,6 +206,12 @@ const work = defineCollection({
         date: z.coerce.date(),
         /** false = draft: visible in `astro dev`, excluded from production. */
         published: z.boolean().default(false),
+        /**
+         * Shipped, but the work is still moving. Independent of `published`:
+         * a WIP entry is a real post that carries an honest badge, not a draft
+         * hidden from the build.
+         */
+        wip: z.boolean().default(false),
         order: blankable(z.number().int()),
 
         live_url: blankable(z.url()),
