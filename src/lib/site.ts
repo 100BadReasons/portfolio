@@ -14,6 +14,20 @@
  */
 export const LAUNCHED = true;
 
+/**
+ * GoatCounter site code — the subdomain from your dashboard URL, so for
+ * `https://100badreasons.goatcounter.com` this is `100badreasons`.
+ *
+ * Analytics load only when this is set AND LAUNCHED is true, so the flag that
+ * governs indexing also governs tracking: a pre-launch site is neither crawled
+ * nor counted. Leave it empty and no script is emitted at all.
+ *
+ * count.js ignores localhost and file:// on its own, so `npm run dev` never
+ * pollutes the numbers. /admin is not counted either — the CMS page is its own
+ * standalone document and does not use BaseLayout.
+ */
+export const GOATCOUNTER_CODE = '100badreasons';
+
 export const SITE_NAME = '100BadReasons';
 
 /**

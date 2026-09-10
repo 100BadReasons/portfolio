@@ -1,6 +1,6 @@
 ---
 import { absoluteUrl, withBase } from '../lib/url';
-import { LAUNCHED, SITE_NAME } from '../lib/site';
+import { GOATCOUNTER_CODE, LAUNCHED, SITE_NAME } from '../lib/site';
 import SiteFooter from '../components/primitives/SiteFooter.astro';
 import TopBar from '../components/feed/TopBar.astro';
 import '../styles/global.css';
@@ -35,6 +35,16 @@ const canonical = absoluteUrl(path, Astro.site);
     {ogImage && <meta property="og:image" content={absoluteUrl(ogImage, Astro.site)} />}
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    {/* GoatCounter. Gated on the same flag as indexing, so a pre-launch site is
+        neither crawled nor counted. `is:inline` keeps Astro from bundling it —
+        it must stay a plain async tag pointing at gc.zgo.at. */}
+    {LAUNCHED && GOATCOUNTER_CODE && (
+      <script
+        is:inline
+        async
+        data-goatcounter={`https://${GOATCOUNTER_CODE}.goatcounter.com/count`}
+        src="https://gc.zgo.at/count.js"></script>
+    )}
   </head>
   <body>
     <TopBar hasBanner={hasBanner} />
