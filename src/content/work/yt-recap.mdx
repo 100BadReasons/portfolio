@@ -1,0 +1,157 @@
+---
+title: YT Recap
+tagline: A Claude Code skill that makes two models watch the same video, then flags every place they disagree.
+category: software
+role: Developer — the two-reader design, the Gemini integration, and the reconciliation rules
+date: 2026-09-13
+published: true
+
+featured_preview:
+  kind: video
+  poster: /media/yt-recap/poster.avif
+  webm: /media/yt-recap/preview.webm
+  mp4: /media/yt-recap/preview.mp4
+  duration_s: 5
+  bytes: 131847
+  width: 720
+  height: 1280
+  alt: >-
+    Two notes files, claude-pass.md and gemini-pass.md, with red arrows
+    converging on a single recap.md in the folder below, labelled 2 files
+    reconciled into 1 recap.
+
+deep_dive_media:
+  - kind: local
+    src: /media/yt-recap/film.mp4
+    poster: /media/yt-recap/film-poster.avif
+    caption: >-
+      The skill run end to end on Apple's 77-minute September 2026 keynote: the
+      /yt-recap command, Claude's summary with its Worth knowing flags, the two
+      readers' notes, and the saved recap.
+    width: 720
+    height: 1280
+
+tech_stack:
+  frontend_logic:
+    - Python 3
+  ai_orchestration:
+    - Claude Code
+    - Claude Opus 5
+    - Gemini API
+    - /watch skill
+  infrastructure:
+    - yt-dlp
+    - ffmpeg
+    - google-genai
+
+llm_orchestration:
+  summary: >-
+    Claude writes Reader A's notes from captions and scene-change frames pulled
+    by the open-source /watch skill. Gemini writes Reader B's from the video
+    itself, frames and audio together. Neither sees the other's notes; Claude
+    reconciles them afterwards into one recap.
+  models:
+    - Claude Opus 5
+    - Gemini 3.8 Flash
+  patterns:
+    - agent-workflow
+    - structured-extraction
+    - api-pipeline
+  autonomy: semi-autonomous
+  human_in_the_loop: >-
+    The skill confirms scope before spending tokens on a long video, and
+    anything only one reader saw lands in a flagged section for me to check
+    rather than in the summary.
+
+pipeline_diagram:
+  title: Two readers, one recap
+  kind: data-flow
+  caption: >-
+    The readers never see each other's notes. What both support becomes the
+    recap; anything only one of them saw, and every conflict, is listed
+    separately.
+
+engineering_challenge:
+  constraint: >-
+    An AI video summary reads as uniformly confident. Captions miss what is only
+    on the slides, sparse frames miss the fine print, and a model that has never
+    heard of a product may decide the video is fake. None of that shows in the
+    summary.
+  resolution: >-
+    Two readers with different blind spots write independently: Claude from
+    captions and scene-change frames, Gemini from the video itself. A
+    reconciliation step keeps what both support in the recap, and lists
+    single-reader claims and conflicts in their own sections instead of blending
+    them in.
+
+metrics:
+  - label: Keynote recapped
+    value: 77 min
+    method: >-
+      Apple's September 2026 event at full length: 100 scene-change frames and
+      English auto-captions for Claude, the video itself for Gemini.
+  - label: Claims flagged
+    value: "10"
+    method: >-
+      2 disagreements plus 8 claims only one reader made, kept out of the
+      summary and listed separately in the saved recap.
+  - label: Scripts learned
+    value: "∞"
+---
+
+AI video summaries have a dangerous superpower: they sound 100% confident even
+when they're wrong.
+
+If you rely on auto-captions, you miss the slides. If you sample sparse frames,
+you miss the fine print. And if a model meets a product newer than its training
+data, it may decide the video is fake.
+
+So I built **/yt-recap**, a Claude Code skill that works like a two-editor
+newsroom: two models with different blind spots write up the same video
+independently, and nothing reaches the note until they've been checked against
+each other.
+
+## Two readers, one recap
+
+```mermaid
+flowchart LR
+  L[Video link] --> S{Scope<br/>check}
+  S --> A[Reader A: Claude<br/>captions + scene frames]
+  S --> B[Reader B: Gemini<br/>native video + audio]
+  A --> R[Reconcile]
+  B --> R
+  R -->|both agree| M[recap.md]
+  R -->|one reader only| F[Flagged]
+  R -->|conflict| C[Disagreements]
+  F --> M
+  C --> M
+```
+
+- **Scope first.** Checks the runtime and asks what you want, a full breakdown or the key takeaways, before spending any tokens. Anything over 20 minutes gets scoped to a section unless you insist.
+- **Reader A (Claude)** reads timestamped captions and scene-change keyframes pulled by /watch, and writes its notes before it sees Gemini's.
+- **Reader B (Gemini)** watches the video itself on Google's side, frames and audio together, and writes its own.
+- **Reconciliation.** What both readers support goes into the recap. Claims only one reader made, and every conflict, get their own sections instead of being blended in.
+- **Output.** A Markdown recap in its own folder, with key takeaways, exact names and numbers, and the flagged lists, saved next to both readers' notes.
+
+## The stress test
+
+I ran it on Apple's full 77-minute September 2026 keynote. Neither model got it
+right on its own.
+
+- **Gemini decided the keynote was fake.** It called the event a fan-made concept, because the products were newer than its training data. Reader A had the video's source, Apple's own channel, that same week, so the recap filed it as a disagreement instead of a fact.
+- **The captions garbled the prices.** Auto-captions read the iPhone 18 Pro as "$11.99". Both readers took that to mean $1,199, but no price slide landed in the sampled frames, so the recap marks the price unconfirmed rather than stating it.
+- **The frames missed the fine print.** Gemini reported "Not available in the EU and China" disclaimers that none of Claude's 100 frames across 77 minutes captured. They're in the recap, flagged as seen by one reader only.
+
+## Where it goes next
+
+- **Settle conflicts from the screen.** When the readers disagree, pull high-resolution frames at those moments automatically and resolve it from what's actually shown.
+- **Autonomous research.** One agent finds a topic, another curates a playlist, and this skill works through the whole queue.
+- **Ground truth for RAG.** The recaps are already structured Markdown, so hours of technical video can become checked context for documentation and other agents.
+- **Meta-learning.** A sibling skill, /youtube-to-agent, already runs the same two-reader pass on engineering tutorials and turns what it learns into a new Claude Code skill.
+
+Built on Brad Bonanno's open-source /watch skill and the two-reader method from
+Jens Heitmann's YouTube to Agent Engine guide, with /watch adapted to run on a
+single Gemini key.
+
+One model gives you confidence. Two models that have to agree show you where
+that confidence was earned.
